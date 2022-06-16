@@ -19,18 +19,6 @@ class ControladorMercado:
                 return True
         return False
 
-    def verifica_integridade_dados(self, dados) -> bool:
-        if all(
-            [
-                isinstance(dados["nome"], str),
-                isinstance(dados["numero"], int),
-                isinstance(dados["cep"], str),
-                isinstance(dados["nome_rua"], str),
-            ]
-        ):
-            return True
-        return False
-
     def cadastra_mercado(self, dados: dict) -> None:
         if self.verifica_dados_duplicados(dados):
             pass
