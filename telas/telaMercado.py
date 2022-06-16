@@ -2,6 +2,17 @@ class TelaMercado:
     def mostra_mensagem(self, mensagem):
         print(mensagem)
 
+    def verifica_integridade_dados(self, dados) -> bool:
+        if all(
+            [
+                isinstance(dados.get("nome"), str),
+                isinstance(dados.get("numero"), int),
+                isinstance(dados.get("cep"), str),
+            ]
+        ):
+            return True
+        return False
+
     def pega_dados_mercado(self):
         while True:
             dados = {}
@@ -20,3 +31,7 @@ class TelaMercado:
         print("Nome do mercado: ", dados["nome"])
         print("CEP do mercado: ", dados["cep"])
         print("CNPJ do mercado: ", dados["cnpj"])
+
+    def seleciona_mercado(self):
+        cnpj_mercado = input("CNPJ do mercado: ")
+        return cnpj_mercado
