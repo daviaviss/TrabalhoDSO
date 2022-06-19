@@ -39,3 +39,4 @@ class ControladorCategoria:
                 return c
         self.tela_categoria.mostra_mensagem("Nao existe uma categoria com esse nome!")
         return False
+    

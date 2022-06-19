@@ -14,7 +14,11 @@ class ControladorMenuPrincipal:
         return self.__tela_menu_principal
     
     def abre_opcoes_usuario(self):
-        self.controlador_cessao.controlador_usuario.abre_menu_usuario()
+        if hasattr(self.controlador_cessao.usuario_atual, "cnpj"):
+            self.controlador_cessao.controlador_pessoa_juridica.abre_tela()
+        else:
+            self.controlador_cessao.controlador_pessoa_fisica.abre_tela()
+
     
     def abre_opcoes_mercado(self):
         self.controlador_cessao.controlador_mercado.abre_menu_mercado()
@@ -26,7 +30,7 @@ class ControladorMenuPrincipal:
         self.tela_menu_principal.abre_menu_principal()
     
     def desloga(self):
-        self.controlador_cessao.desloga()
+        self.controlador_cessao.usuario_atual = None
     
     def abre_menu_principal(self):
         opcoes = {

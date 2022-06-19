@@ -1,7 +1,13 @@
 from abc import ABC
 
 class TelaAbstrata(ABC):
-
+    
+    def mostra_tela_confirmacao(self):
+        print("== TEM CERTEZA QUE DESEJA REALIZAR ESSA ACAO? ==")
+        print("[0] - SIM")
+        print("[1] - NAO")
+        opcao = self.le_numero_inteiro("Escolhe uma das opcoes acima: ", [0, 1])
+    
 
     def mostra_mensagem(self, msg):
         print(msg)

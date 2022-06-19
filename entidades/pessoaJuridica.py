@@ -1,8 +1,8 @@
 from entidades.pessoa import Pessoa
 
-class PessoaFisica(Pessoa):
+class PessoaJuridica(Pessoa):
 
-    def __init__(self, cnpj: str):
+    def __init__(self, cnpj: str, nome, email):
         super().__init__(nome, email)
         self.__cnpj = cnpj 
 

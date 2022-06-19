@@ -1,19 +1,29 @@
 from entidades.endereco import Endereco
+from entidades.pessoaJuridica import PessoaJuridica
 
-class Mercado(Endereco):
+class Mercado:
 
-    def __init__(self, nome_mercado: str):
-        super().__init__(cep, nome_rua, numero)
-        self.__nome_mercado = nome_mercado
-        self.__cnpj = "" 
+    def __init__(self, nome_mercado: str, cep, numero, cnpj, proprietario):
+        self.__nome = nome_mercado
+        self.__cnpj = cnpj
+        self.__endereco = Endereco(cep, numero)
+        self.__proprietario: PessoaJuridica = proprietario
 
     @property
-    def nome_mercado(self) -> str:
-        return self.__nome_mercado
-
-    @nome_mercado.setter
-    def nome_mercado(self, nome_mercado: str):
-        self.__nome_mercado = nome_mercado
+    def nome(self) -> str:
+        return self.__nome
+    
+    @property
+    def endereco(self):
+        return self.__endereco
+    
+    @property
+    def proprietario(self):
+        return self.__proprietario
+    
+    @nome.setter
+    def nome(self, nome_mercado: str):
+        self.__nome = nome_mercado
 
     @property
     def cnpj(self) -> str:

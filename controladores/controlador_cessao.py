@@ -29,8 +29,16 @@ class ControladorCessao:
             controladorPessoaJuridica.ControladorPessoaJuridica(self)
         )
         self.__tela_cessao = TelaCessao()
-        self.__usuarios = []
+        self.__usuario_atual = None
 
+    @property
+    def usuario_atual(self):
+        return self.__usuario_atual
+    
+    @usuario_atual.setter
+    def usuario_atual(self, valor):
+        self.__usuario_atual = valor
+    
     @property
     def controlador_produto(self):
         return self.__controlador_produto
@@ -67,10 +75,6 @@ class ControladorCessao:
     def controlador_pessoa_juridica(self):
         return self.__controlador_pessoa_juridica
 
-    @property
-    def usuarios(self):
-        return self.__usuarios
-
     def inicializa_sistema(self):
         self.abre_menu()
 
@@ -78,50 +82,29 @@ class ControladorCessao:
         self.tela_cessao.mostra_mensagem("=== PROGRAMA ENCERRADO! ===")
         exit(0)
 
-    def pega_usuario_por_email(self, email):
-        for u in self.usuarios:
-            if u.email == email:
-                return u
-        return False
-
     def abre_menu_opcoes(self):
         self.controlador_menu_principal.abre_menu_principal()
 
     def entrar(self):
         email = self.tela_cessao.pega_email()
-        if not self.pega_usuario_por_email(email):
+        pf = self.controlador_pessoa_fisica.pega_pessoa_por_email(email)
+        pj = self.controlador_pessoa_juridica.pega_pessoa_por_email(email)
+        # import pdb; pdb.set_trace()
+        if not pj and not pf:
             self.tela_cessao.mostra_mensagem("Nao existe um usuario com esse email!")
             return
+        self.usuario_atual = pf or pj
         self.controlador_menu_principal.abre_menu_principal()
 
-    def verifica_usuario(self, dados, tipo):
-        if tipo == "fisico":
-            usuarios = self.controlador_pessoa_fisica.pessoas
-            for u in usuarios:
-                if u.cpf == dados["identificador"] and dados["email"] == u.email:
-                    return True
-        elif tipo == "juridico":
-            usuarios = self.controlador_pessoa_juridica.pessoas
-            for u in usuarios:
-                if u.cnpj == dados["identificador"] and dados["email"] == u.email:
-                    return True
-        return False
-
     def cadastra_usuario_fisico(self):
-        while True:
-            dados = self.tela_cessao.pega_dados_usuario("fisico")
-            if self.verifica_usuario(dados["identificador"], dados["email"]):
-                self.tela_cessao.mostra_mensagem("Usuario ja cadastrado!")
-                continue
-            user = self.controlador_pessoa_fisica.cadastra_pessoa_fisica()
-            break
-
+        self.controlador_pessoa_fisica.cadastra_pessoa_fisica()
+    
     def cadastra_usuario_jurifico(self):
-        dados = self.tela_cessao.pega_dados_usuario("juridico")
+        self.controlador_pessoa_juridica.cadastra_pessoa_juridica()
 
     def lista_usuarios(self):
-        for u in self.usuarios:
-            self.__tela_cessao.mostra_dados_usuario(u, u.tipo)
+        self.controlador_pessoa_fisica.lista_pesoas_fisicas()
+        self.controlador_pessoa_juridica.lista_pessoas_juridicas()
 
     def abre_menu(self):
         opcoes = {

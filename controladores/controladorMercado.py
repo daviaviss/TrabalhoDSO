@@ -4,18 +4,25 @@ from telas.telaMercado import TelaMercado
 
 
 class ControladorMercado:
-    def __init__(self, controlador_sistema):
-        self.__controlado_sistema = controlador_sistema
+    def __init__(self, controlador_cessao):
+        self.__controlador_cessao = controlador_cessao
         self.__mercados = []
-        self.__controlador_sistema = controlador_sistema
         self.__tela_mercado = TelaMercado()
-    
+
+    @property
+    def mercados(self):
+        return self.__mercados
+
+    @property
+    def controlador_cessao(self):
+        return self.__controlador_cessao
+
     @property
     def tela_mercado(self):
         return self.__tela_mercado
 
     def verifica_dados_duplicados(self, dados: dict) -> bool:
-        for mercado in self.__mercados:
+        for mercado in self.mercados:
             if any(
                 [
                     dados["nome"] == mercado.nome,
@@ -26,57 +33,70 @@ class ControladorMercado:
                 return True
         return False
 
-    def cadastra_mercado(self, dados: dict) -> None:
+    def cadastra_mercado(self) -> None:
+        dados = self.tela_mercado.pega_dados_mercado()
         if self.verifica_dados_duplicados(dados):
-            pass
-            # TODO: MOSTRAR MENSAGEM
-        if not self.verifica_integridade_dados(dados):
-            pass
-            # TODO: MOSTRAR MENSAGEM
+            self.tela_mercado.mostra_mensagem(
+                "Um mercado com um dos dos dados inseridos ja existe!"
+            )
+
         novo_mercado = Mercado(
-            dados["nome"], dados["cep"], dados["nome_rua"], dados["numero"]
+            dados["nome"],
+            dados["cep"],
+            dados["numero"],
+            dados["cnpj"],
+            self.controlador_cessao.usuario_atual,
         )
-        self.__mercados.append(novo_mercado)
+        self.mercados.append(novo_mercado)
+        self.tela_mercado.mostra_mensagem("Mercado criado com sucesso")
 
     def lista_mercados(self) -> None:
-        for mercado in self.__mercados:
-            pass
-            # TODO: mostrar mensagem com dados do mercado
+        for mercado in self.mercados:
+            self.tela_mercado.mostra_dados_mercado(mercado)
 
-    def exclui_mercado(self, usuario, cnpj):
-        pass
-        # TODO: chhamar controlador pessoa juridica para verificar se o mercado que ela quer exluir eh dela
-
-    def altera_mercado(self, dados: dict) -> None:
-        mensagem = "Dados inválidos, tente novamente!"
-        novo_nome = dados.get("nome", False)
-        if novo_nome and isinstance(novo_nome, str):
-            for mercado in self.__mercados:
-                if novo_nome == mercado.nome:
-                    self.__tela_mercado.mostra_mensagem(mensagem)
-                    self.te
-                    break
+    def exclui_mercado(self):
+        mercado, index = self.pega_mercado_por_cnpj()
+        if not mercado:
+            self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ")
+            return
+        if mercado.proprietario == self.controlador_cessao.usuario_atual:
+            del self.mercados[index]
+            self.tela_mercado.mostra_mensagem("Mercado deletado com sucesso!")
         else:
-            self.__tela_mercado.mostra_mensagem(mensagem)
-
-    def exclui_supermercado(self, cnpj):
-        self.__tela_mercado.mostra_mensagem("DIGITE O CNPJ DO MERCADO DE DESEJA EXLUIR")
-        cnpj = self.__tela_mercado.seleciona_mercado()
-        for mercado in self.__mercados:
-            pass
-            # TODO: implementar login para saber o mercado que o usuario pode excluir
-        self.__tela_mercado.mostra_mensagem("NÃO FOI POSSÍVEL EXLUIR ESSE MERCADO!")
-        self.__tela_mercado.seleciona_mercado()
+            self.tela_mercado.mostra_mensagem(
+                "Voce nao pode deletar um mercado que voce nao eh o proprietario!"
+            )
 
     def pega_mercado_por_cnpj(self):
         cnpj = self.tela_mercado.seleciona_mercado()
-        for mercado in self.__mercados:
+        for index, mercado in enumerate(self.mercados):
             if mercado.cnpj == cnpj:
-                return mercado
-        return False
+                return {"mercado": mercado, "index": index}
+        return {}
+
+    def altera_mercado(self) -> None:
+        dados_mercado = self.pega_mercado_por_cnpj()
+        if not dados_mercado.get("mercado", False):
+            self.tela_mercado.mostra_mensagem("Um mercado com esse CNPJ nao existe!")
+            return
+        if dados_mercado["mercado"].proprietario != self.controlador_cessao.usuario_atual:
+            self.tela_mercado.mostra_mensagem(
+                "Voce nao pode alterar um mercado que voce nao eh o proprietario!"
+            )
+            return
+        dados_usuario = self.tela_mercado.pega_dados_mercado(cnpj=False, permitir_vazio=True)
+        dados_mercado["mercado"].nome = dados_usuario.get("nome", False) or dados_mercado["mercado"].nome
+        dados_mercado["mercado"].endereco.cep = (
+            dados_usuario.get("cep") or dados_mercado["mercado"].endereco.cep
+        )
+        dados_mercado["mercado"].numero = (
+            dados_usuario.get("numero") or dados_mercado["mercado"].endereco.numero
+        )
+
+        self.tela_mercado.mostra_mensagem("Mercado alterado com sucesso!")
 
     def lista_produtos_mercado(self, cnpj):
-        mercado = self.pega_mercado_por_cnpj(cnpj)
+        mercado, _ = self.pega_mercado_por_cnpj(cnpj)
         if mercado:
             produtos = []
             for cadastro in mercado.cadastros:
@@ -88,3 +108,20 @@ class ControladorMercado:
 
     def volta_menu_mercado(self):
         self.__tela_mercado.mostra_menu_inical()
+
+    def abre_menu_mercado(self):
+        if hasattr(self.controlador_cessao.usuario_atual, "cnpj"):
+            tipo_usuario = "juridico"
+        else:
+            tipo_usuario = "fisico"
+        opcoes = {
+            1: self.lista_mercados,
+            2: self.cadastra_mercado,
+            3: self.altera_mercado,
+            4: self.exclui_mercado,
+        }
+        while True:
+            opcao = self.tela_mercado.menu_mercado(tipo_usuario)
+            if opcao == 0:
+                break
+            opcoes[opcao]()
