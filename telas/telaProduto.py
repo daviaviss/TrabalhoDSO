@@ -1,6 +1,7 @@
 from telas.tela_abstrata import TelaAbstrata
+
+
 class TelaProduto(TelaAbstrata):
-    
     def menu_produtos(self):
         print("--- MENU PRODUTOS ---")
         print("[1] - LISTAR PRODUTOS")
@@ -13,26 +14,21 @@ class TelaProduto(TelaAbstrata):
         print("[8] - BUSCAR UM PRODUTO")
         print("[0] - VOLTAR")
         inteiros_validos = [1, 2, 3, 4, 5, 6, 7, 8, 0]
-        opcoa = self.le_numero_inteiro("Escolha uma das opcoes acima")
+        return self.le_numero_inteiro(
+            "Escolha uma das opcoes acima: ", inteiros_validos
+        )
+
     def pega_dados_produto(self):
-        repetido = False
         while True:
-            if repetido:
-                print("[0] - VOLTAR")
-                print("[1] - CONTINUAR")
-                msg = "Selecione uma das opcoes acima: "
-                opcao = self.le_numero_inteiro(msg, [0, 1])
-                if opcao == 0:
-                    return
             dados = {}
             print("---- CADASTRO DE PRODUTO ----")
             preco = input("Preço do produto: ")
+            if not self.verifica_tipo_dados([preco], "float"):
+                self.mostra_mensagem("Preco invalido!")
+                continue
             nome = input("Nome do produto: ")
             descricao = input("Descricao do produto")
-            repetido = True
-            if not self.verifica_tipo_dados([preco], "float"):
-                continue
-            return dados
+            return {"preco": preco, "nome": nome, "descricao": descricao}
 
     def confirma_preco(self):
         id_produto = input("ID do produto que deseja confirmar o preço: ")
@@ -47,26 +43,27 @@ class TelaProduto(TelaAbstrata):
     def pega_id_produto(self):
         id_pruduto = input("Insira o ID do produto: ")
         return id_pruduto
-    
+
     def pega_modo_ordenacao(self, atributo_ordenacao):
-        
+
         if atributo_ordenacao == "preco":
-            print("--- SELECIONE O TIPO DE ORDENACAO ---")            
+            print("--- SELECIONE O TIPO DE ORDENACAO ---")
             print("[1] - MAIOR PRECO")
             print("[2] - MENOR PRECO")
             opcoes = {"1": "maior_preco", "2": "menor_preco"}
         if atributo_ordenacao == "numero_confirmacoes":
-            print("--- SELECIONE O TIPO DE ORDENACAO ---")            
+            print("--- SELECIONE O TIPO DE ORDENACAO ---")
             print("[1] - MAIS CONFIRMACOES")
             print("[2] - MENOS CONFIRMACOES")
             opcoes = {"1": "mais_confirmacoes", "2": "menos_confirmacoes"}
         if atributo_ordenacao == "data_postagem":
-            print("--- SELECIONE O TIPO DE ORDENACAO ---")            
+            print("--- SELECIONE O TIPO DE ORDENACAO ---")
             print("[1] - MAIS RECENTE")
             print("[2] - MENOS ANTIGO")
             opcoes = {"1": "maid_recente", "2": "mais_antigo"}
         modo_ordenacao = input("Insira o modo de ordencao: ")
         return opcoes[modo_ordenacao]
+
     def busca_produto(self):
         opcoes = {"1": "preco", "2": "numero_confirmacoes", "3": "data_postagem"}
         dados_busca = {}
@@ -85,7 +82,7 @@ class TelaProduto(TelaAbstrata):
         dados_busca["atributo_ordenacao"] = opcoes[filtro_busca]
         dados_busca["modo_ordenacao"] = modo_ordenacao
         return dados_busca
-    
+
     def cadastra_qualificador(self):
         print("--- CADASTRO DE QUALIFICADOR ----")
         qualificador = input("Qualificador: ")

@@ -22,7 +22,16 @@ class TelaMercado(TelaAbstrata):
             return False
         return True
 
-    def menu_mercado(self, tipo_usuario):
+    def menu_mercado_pessoa_fisica(self):
+        
+        print("--- MENU MERCADO ---")
+        print("[1] - LISTAR MERCADOS")
+        print("[0] - VOLTAR")
+        return self.le_numero_inteiro("Insira uma das opcoes acima: ", [0, 1])
+
+    
+    
+    def menu_mercado_pessoa_juridica(self):
         print("--- MENU MERCADO ---")
         print("[1] - LISTAR MERCADOS")
         print("[2] - CADASTRAR MERCADO")

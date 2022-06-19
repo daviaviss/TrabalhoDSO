@@ -24,7 +24,7 @@ class ControladorMenuPrincipal:
         self.controlador_cessao.controlador_mercado.abre_menu_mercado()
     
     def abre_opcoes_produto(self):
-        self.controlador_cessao.controlador_produto.abre_menu_produtos()
+        self.controlador_cessao.controlador_produto.abre_menu_produto()
         
     def abre_menu_principal(self):
         self.tela_menu_principal.abre_menu_principal()

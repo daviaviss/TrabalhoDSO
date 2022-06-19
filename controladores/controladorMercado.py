@@ -79,13 +79,20 @@ class ControladorMercado:
         if not dados_mercado.get("mercado", False):
             self.tela_mercado.mostra_mensagem("Um mercado com esse CNPJ nao existe!")
             return
-        if dados_mercado["mercado"].proprietario != self.controlador_cessao.usuario_atual:
+        if (
+            dados_mercado["mercado"].proprietario
+            != self.controlador_cessao.usuario_atual
+        ):
             self.tela_mercado.mostra_mensagem(
                 "Voce nao pode alterar um mercado que voce nao eh o proprietario!"
             )
             return
-        dados_usuario = self.tela_mercado.pega_dados_mercado(cnpj=False, permitir_vazio=True)
-        dados_mercado["mercado"].nome = dados_usuario.get("nome", False) or dados_mercado["mercado"].nome
+        dados_usuario = self.tela_mercado.pega_dados_mercado(
+            cnpj=False, permitir_vazio=True
+        )
+        dados_mercado["mercado"].nome = (
+            dados_usuario.get("nome", False) or dados_mercado["mercado"].nome
+        )
         dados_mercado["mercado"].endereco.cep = (
             dados_usuario.get("cep") or dados_mercado["mercado"].endereco.cep
         )
@@ -121,7 +128,10 @@ class ControladorMercado:
             4: self.exclui_mercado,
         }
         while True:
-            opcao = self.tela_mercado.menu_mercado(tipo_usuario)
+            if tipo_usuario == "fisico":
+                opcao = self.tela_mercado.menu_mercado_pessoa_fisica()
+            else:
+                opcao = self.tela_mercado.menu_mercado_pessoa_juridica()
             if opcao == 0:
                 break
             opcoes[opcao]()

@@ -1,4 +1,6 @@
 from json.encoder import py_encode_basestring_ascii
+from xml.etree.ElementTree import TreeBuilder
+from controladores.controlador_cessao import ControladorCessao
 from entidades.mercado import Mercado
 from telas.telaProduto import TelaProduto
 from entidades.produto import Produto
@@ -8,8 +10,8 @@ from random import randint
 
 
 class ControladorProduto:
-    def __init__(self, controlador_sistema):
-        self.__controlador_sistema = controlador_sistema
+    def __init__(self, controlador_cessao):
+        self.__controlador_cessao: ControladorCessao = controlador_cessao
         self.__produtos = []
         self.__tela_produto = TelaProduto()
 
@@ -22,8 +24,8 @@ class ControladorProduto:
         return self.__tela_produto
 
     @property
-    def controlador_sistema(self):
-        return self.__controlador_sistema
+    def controlador_cessao(self):
+        return self.__controlador_cessao
 
     def pega_preco_ou_confirmacao_preco_produto(
         self, produto, atributo, modo="mais_confirmado"
@@ -115,7 +117,7 @@ class ControladorProduto:
 
     def ordena_produto_por_preco(self, produtos, modo):
         precos = []
-        for preco in self.controlador_sistema.controlador_preco.precos:
+        for preco in self.controlador_cessao.controlador_preco.precos:
             for produto in produtos:
                 if preco in produto.precos:
                     precos.append(preco)
@@ -136,7 +138,7 @@ class ControladorProduto:
 
     def ordena_por_confirmacoes_preco(self, produtos, modo):
         precos = []
-        for preco in self.controlador_sistema.controlador_preco.precos:
+        for preco in self.controlador_cessao.controlador_preco.precos:
             for produto in produtos:
                 if preco in produto.precos:
                     precos.append(preco)
@@ -158,13 +160,6 @@ class ControladorProduto:
         metodo = modos[atributo_ordenacao]
         metodo(produtos, modo_ordenacao)
 
-    def pega_opcao(self):
-        opcao = self.tela_produto.mostra_opcao()
-        if opcao == 0:
-            pass
-            # TODO: voltar para outro menu
-        return True
-
     def verifica_produto_duplicado(self, dados):
         for p in self.produtos:
             if all(
@@ -172,8 +167,8 @@ class ControladorProduto:
                     p.nome == dados["nome"],
                     p.preco.valor == dados["preco"],
                     p.mercado == dados["mercado"],
-                    p.categoria == dados["categoria"],
-                    self.verifica_qualificadores_iguais(p, dados["qualificadores"])
+                    p.categoria.nome == dados["categoria"],
+                    self.verifica_qualificadores_iguais(p, dados["qualificadores"]),
                 ]
             ):
                 return p
@@ -186,25 +181,22 @@ class ControladorProduto:
                     return False
         return True
 
+    def verifica_existe_mercado(self):
+        if self.controlador_cessao.controlador_produto.produtos:
+            return True
+        return False
+
     def cadastra_produto(self):
-        while True:
-            if self.pega_opcao() == 1:
-                dados_produto = self.tela_produto.pega_dados_produto()
-                if not dados_produto:
-                    continue
-                mercado = (
-                    self.controlador_sistema.controlador_mercado.pega_mercado_por_cnpj()
-                )
-                if not mercado:
-                    continue
-                categoria = (
-                    self.controlador_sistema.controlador_categoria.busca_categoria()
-                )
-                if not categoria:
-                    continue
-                break
-            else:
-                return
+        if not self.verifica_existe_mercado():
+            self.tela_produto.mostra_mensagem(
+                "Crie pelo menos um mercado para cadastrar um produto!"
+            )
+            return
+
+        dados_produto = self.tela_produto.pega_dados_produto()
+        mercado = self.controlador_cessao.controlador_mercado.pega_mercado_por_cnpj()
+        categoria = self.controlador_cessao.controlador_categoria.busca_categoria()
+
         dados = {}
         dados["nome"] = dados_produto["nome"]
         dados["preco"] = dados_produto["preco"]
@@ -221,13 +213,12 @@ class ControladorProduto:
                 dados["nome"],
                 dados["descricao"],
                 dados["categoria"],
-                dados["qualificadores"]
+                dados["qualificadores"],
             )
             preco = Preco(dados["preco"], produto)
             produto.precos.append(preco)
             self.tela_produto.mostra_mensagem("Produto cadastrado com sucesso!")
 
-            
         for produto in self.produtos:
             if all(
                 [
@@ -235,7 +226,7 @@ class ControladorProduto:
                     dados["nome"] == produto.nome,
                     dados["categoria"] == produto.categoria.nome,
                     dados["qualificador"] == produto,
-                    self.verifica_produto_duplicado(produto, dados["qualificadores"])
+                    self.verifica_produto_duplicado(produto, dados["qualificadores"]),
                 ]
             ) and all(x in produto.qualificadores for x in dados["qualificadores"]):
                 produto.contador_preco += 1
@@ -251,7 +242,6 @@ class ControladorProduto:
 
         self.produtos.append(produto)
         self.tela_produto.mostra_mensagem("Produto cadastrado!")
-
 
     def pega_produto(self, id_produto):
         for produto in self.produtos:
@@ -283,7 +273,7 @@ class ControladorProduto:
                 )
                 continue
             data_cadastro = datetime.now()
-            # usuario = self.controlador_sistema.controlador_sessao.usuario_atual
+            # usuario = self.controlador_cessao.controlador_sessao.usuario_atual
             ja_cadastrado = False
             for preco in produto.precos:
                 if preco.valor == dados["preco"]:
@@ -300,7 +290,6 @@ class ControladorProduto:
                 # import pdb
                 self.tela_produto.mostra_mensagem("Preco cadastrado com sucesso!")
             break
-
 
     def busca_produto(self):
         dados_busca = self.tela_produto.busca_produto()
@@ -330,5 +319,19 @@ class ControladorProduto:
             opcao = self.tela_produto.menu_produtos()
             self.cadastra_produto()
 
-    def inicia_menu_principal(self):
-        self.tela_produto.menu_produtos()
+    def abre_menu_produto(self):
+        opcoes = {
+            1: self.lista_produtos,
+            2: self.cadastra_produto,
+            # 3: self.cadastra_qualificador,
+            4: self.adicionar_preco_produto,
+            5: self.confirma_preco_produto,
+            # 7: self.edita_produto,
+            # 8: self.exclui_produto,
+            9: self.busca_produto,
+        }
+        while True:
+            opcao = self.tela_produto.menu_produtos()
+            if opcao == 0:
+                break
+            opcoes[opcao]()
