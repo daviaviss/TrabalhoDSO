@@ -1,4 +1,5 @@
-class TelaCategoria:
+from telas.tela_abstrata import TelaAbstrata
+class TelaCategoria(TelaAbstrata):
     
     def mostra_categoria(self, categoria):
         print(f'CATEGORIA: {categoria.nome}')

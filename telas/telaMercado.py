@@ -1,4 +1,5 @@
-class TelaMercado:
+from telas.tela_abstrata import TelaAbstrata
+class TelaMercado(TelaAbstrata):
     def mostra_mensagem(self, mensagem):
         print(mensagem)
 
@@ -33,6 +34,5 @@ class TelaMercado:
         print("CNPJ do mercado: ", dados["cnpj"])
 
     def seleciona_mercado(self):
-        print()
-        opcao = input('CNPJ do mercado ou "0" para voltar ao menu inicial: ')
+        opcao = input('CNPJ do mercado: ')
         return opcao

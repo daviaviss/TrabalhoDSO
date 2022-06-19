@@ -37,4 +37,5 @@ class ControladorCategoria:
         for c in self.categorias:
             if c.nome == nome:
                 return c
+        self.tela_categoria.mostra_mensagem("Nao existe uma categoria com esse nome!")
         return False

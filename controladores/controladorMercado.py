@@ -9,6 +9,10 @@ class ControladorMercado:
         self.__mercados = []
         self.__controlador_sistema = controlador_sistema
         self.__tela_mercado = TelaMercado()
+    
+    @property
+    def tela_mercado(self):
+        return self.__tela_mercado
 
     def verifica_dados_duplicados(self, dados: dict) -> bool:
         for mercado in self.__mercados:
@@ -64,7 +68,8 @@ class ControladorMercado:
         self.__tela_mercado.mostra_mensagem("NÃO FOI POSSÍVEL EXLUIR ESSE MERCADO!")
         self.__tela_mercado.seleciona_mercado()
 
-    def pega_mercado_por_cnpj(self, cnpj):
+    def pega_mercado_por_cnpj(self):
+        cnpj = self.tela_mercado.seleciona_mercado()
         for mercado in self.__mercados:
             if mercado.cnpj == cnpj:
                 return mercado

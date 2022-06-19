@@ -2,7 +2,7 @@ from entidades.pessoa import Pessoa
 
 class PessoaFisica(Pessoa):
 
-    def __init__(self, cpf: str):
+    def __init__(self, cpf: str, nome, email):
         super().__init__(nome, email)
         self.__cpf = cpf 
 

@@ -1,4 +1,5 @@
-class TelaProduto:
+from telas.tela_abstrata import TelaAbstrata
+class TelaProduto(TelaAbstrata):
     
     def menu_produtos(self):
         print("--- MENU PRODUTOS ---")
@@ -11,18 +12,27 @@ class TelaProduto:
         print("[7] - EXCLUIR UM PRODUTO")
         print("[8] - BUSCAR UM PRODUTO")
         print("[0] - VOLTAR")
-        escolha = input("Insira uma das opcoes acima: ")
-    def cadastra_produto(self):
-        dados = {}
-        print("---- CADASTRO DE PRODUTO ----")
-        dados["mercado"] = input("Mercado onde o produto sera cadastrado: ")
-        dados["preco"] = input("Preço do produto: ")
-        dados["categoria"] = input("Categoria do produto: ")
-        dados["nome"] = input("Nome do produto: ")
-        dados["descricao"] = input("Descricao do produto")
-        dados["tipo"] = input("Tipo do produto: ")
-        dados["qualificadores"] = input("Qualificadores (separados por virgula): ")
-        return dados
+        inteiros_validos = [1, 2, 3, 4, 5, 6, 7, 8, 0]
+        opcoa = self.le_numero_inteiro("Escolha uma das opcoes acima")
+    def pega_dados_produto(self):
+        repetido = False
+        while True:
+            if repetido:
+                print("[0] - VOLTAR")
+                print("[1] - CONTINUAR")
+                msg = "Selecione uma das opcoes acima: "
+                opcao = self.le_numero_inteiro(msg, [0, 1])
+                if opcao == 0:
+                    return
+            dados = {}
+            print("---- CADASTRO DE PRODUTO ----")
+            preco = input("Preço do produto: ")
+            nome = input("Nome do produto: ")
+            descricao = input("Descricao do produto")
+            repetido = True
+            if not self.verifica_tipo_dados([preco], "float"):
+                continue
+            return dados
 
     def confirma_preco(self):
         id_produto = input("ID do produto que deseja confirmar o preço: ")
