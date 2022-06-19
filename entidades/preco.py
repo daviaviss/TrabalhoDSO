@@ -3,7 +3,7 @@ class Preco():
     def __init__(self, valor: float, produto):
         self.__valor = valor
         self.__contador = 0
-        self.__id_produto = produto
+        self.produto = None
 
     @property
     def valor(self) -> float:

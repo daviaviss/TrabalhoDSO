@@ -20,4 +20,4 @@ class ControladorSistema:
         return self.__controlador_preco
 
     def inicializa_sistema(self):
-        self.controlador_produto.abre_menu_inicial()
+        self.controlador_produto.abre_menu_inical()

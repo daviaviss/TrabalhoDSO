@@ -1,10 +1,12 @@
+from ossaudiodev import control_labels
 from entidades.mercado import Mercado
 from telas.telaMercado import TelaMercado
 
 
 class ControladorMercado:
-    def __init__(self):
+    def __init__(self, controlador_sistema):
         self.__mercados = []
+        self.__controlador_sistema = controlador_sistema
         self.__tela_mercado = TelaMercado()
 
     def verifica_dados_duplicados(self, dados: dict) -> bool:

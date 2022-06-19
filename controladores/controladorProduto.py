@@ -1,7 +1,9 @@
+from json.encoder import py_encode_basestring_ascii
 from telas.telaProduto import TelaProduto
 from entidades.produto import Produto
 from entidades.preco import Preco
 from datetime import datetime
+from random import randint
 
 
 class ControladorProduto:
@@ -100,7 +102,7 @@ class ControladorProduto:
 
     def ordena_produto_por_preco(self, produtos, modo):
         precos = []
-        for preco in self.__controlador_sistema.controlador_precos.precos:
+        for preco in self.__controlador_sistema.controlador_preco.precos:
             for produto in produtos:
                 if preco in produto.precos:
                     precos.append(preco)
@@ -109,7 +111,7 @@ class ControladorProduto:
             precos.sort(key=lambda preco: preco.valor, reverse=True)
         else:
             precos.sort(key=lambda preco: preco.valor)
-        return preco
+        return precos
 
     def ordena_produto_por_data(self, produtos, modo):
         if modo == "mais_recente":
@@ -121,7 +123,7 @@ class ControladorProduto:
 
     def ordena_por_confirmacoes_preco(self, produtos, modo):
         precos = []
-        for preco in self.__controlador_sistema.controlador_precos.precos:
+        for preco in self.__controlador_sistema.controlador_preco.precos:
             for produto in produtos:
                 if preco in produto.precos:
                     precos.append(preco)
@@ -135,16 +137,16 @@ class ControladorProduto:
 
     def ordena_produtos(self, produtos: dict, modo_ordenacao, atributo_ordenacao):
         modos = {
-            "data": self.ordena_produto_por_data(produtos, modo_ordenacao),
-            "preco": self.ordena_produto_por_preco(produtos, modo_ordenacao),
-            "confirmacoes_preco": self.ordena_por_confirmacoes_preco(
-                produtos, modo_ordenacao
-            ),
+            "data": self.ordena_produto_por_data,
+            "preco": self.ordena_produto_por_preco,
+            "numero_confirmacoes": self.ordena_por_confirmacoes_preco,
         }
+        # import pdb; pdb.set_trace()
+        metodo = modos[atributo_ordenacao]
+        metodo(produtos, modo_ordenacao)
 
-        modos[atributo_ordenacao](produtos, modo_ordenacao)
-
-    def cadastra_produto(self, dados):
+    def cadastra_produto(self):
+        dados = self.__tela_produto.cadastra_produto()
         for produto in self.__produtos:
             if all(
                 [
@@ -155,19 +157,22 @@ class ControladorProduto:
                 ]
             ) and all(x in produto.qualificadores for x in dados["qualificadores"]):
                 produto.contador_preco += 1
-                self.__tela_produto.mostra_mensagem("Produto cadastrado!")
+                self.__tela_produto.mostra_mensagem("Produto ja cadastrado, o contador foi incrementado!")
                 # TODO: retornar para menu principal
+        data_criacao = datetime.now()
+        preco = Preco(dados["preco"])
         produto = Produto(
             dados["nome"],
-            dados["descricao"],
-            dados["preco"],
-            dados["data_criacao"],
-            dados["usuario"],
+            dados["descricao"]
         )
+        produto.precos.append(preco)
+        preco.produto = produto
+
 
         self.__produtos.append(produto)
         self.__tela_produto.mostra_mensagem("Produto cadastrado!")
-        # TODO: retornar para menu principal
+        self.__tela_produto.menu_produtos()
+        return
 
     def pega_produto(self, id_produto):
         for produto in self.__produtos:
@@ -190,8 +195,9 @@ class ControladorProduto:
 
             # TODO: retornar para menu principal
 
-    def adicionar_preco_produto(self, dados):
+    def adicionar_preco_produto(self):
         while True:
+            dados = self.__tela_produto.adiciona_preco()
             produto = self.pega_produto(dados["id_produto"])
             if not produto:
                 self.__tela_produto.mostra_mensagem(
@@ -199,9 +205,24 @@ class ControladorProduto:
                 )
                 continue
             data_cadastro = datetime.now()
-            usuario = self.__controlador_sistema.controlador_sessao.usuario_atual
-            preco = Preco(dados["preco"], data_cadastro, usuario)
-            produto.precos.append(preco)
+            # usuario = self.__controlador_sistema.controlador_sessao.usuario_atual
+            ja_cadastrado = False
+            for preco in produto.precos:
+                if preco.valor == dados["preco"]:
+                    preco.contador += 1
+                    ja_cadastrado = True
+                    self.__tela_produto.mostra_mensagem(
+                        "Preco ja cadastrado, o contador foi incrementado."
+                    )
+                    break
+            if not ja_cadastrado:
+                # import pdb; pdb.set_trace()
+                preco = Preco(dados["preco"], self.__produtos[0])
+                produto.precos.append(preco)
+                # import pdb
+                self.__tela_produto.mostra_mensagem("Preco cadastrado com sucesso!")
+            break
+        self.__tela_produto.menu_produtos()
 
     def busca_produto(self):
         dados_busca = self.__tela_produto.busca_produto()
@@ -212,17 +233,21 @@ class ControladorProduto:
             "qualificadores": dados_busca["qualificadores"],
         }
         produtos = self.filtra_produtos(filtros)
+        # import pdb; pdb.set_trace()
         produtos = self.ordena_produtos(
             produtos, dados_busca["modo_ordenacao"], dados_busca["atributo_ordenacao"]
         )
         for produto in produtos:
             self.__tela_produto.mostra_dado_produto(self.monta_dados_produto(produto))
-        
+
     def abre_menu_inical(self):
         # lista_opcoes = {1: self.cadastra_livros, 2: self.cadastra_amigos, 3: self.cadastra_emprestimos,
         #                 0: self.encerra_sistema}
-
+        p = Produto("nome", "desc")
+        preco = Preco(12.0, p)
+        p.precos.append(preco)
+        self.__produtos.append(p)
+        p.precos.append(preco)
         while True:
             opcao = self.__tela_produto.menu_produtos()
-            self.busca_produto()
-        
+            self.cadastra_produto()
