@@ -75,17 +75,23 @@ class ControladorProduto:
             if self.compara_dados_produto(p, filtros):
                 produtos.append(p)
         return produtos
+    
+    def concatena_qualificadores(self, qualificadores: list) -> str:
+        dados = ""
+        for q in qualificadores:
+            dados += q.titulo + q.descricao
+        return q
 
     def monta_dados_produto(self, produto):
         preco = self.pega_preco_ou_confirmacao_preco_produto(produto, "preco")
         dados = {
             "nome": produto.nome,
-            "mercado": produto.mercado,
+            "mercado": produto.mercado.nome,
             "data_cricao": produto.data_criacao,
-            "criador": produto.criador,
+            "criador": produto.criador.nome,
             "preco": preco.valor,
             "contagem_confirmacoes": preco.contador,
-            
+            "qualificadores": self.concatena_qualificadores(produto.qualificadores),
         }
         return dados
 

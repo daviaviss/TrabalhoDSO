@@ -10,6 +10,10 @@ class Qualificador():
     @property
     def titulo(self) -> str:
         return self.__titulo
+    
+    @property
+    def descricao(self):
+        return self.__descricao
 
     @titulo.setter
     def titulo(self, titulo: str):

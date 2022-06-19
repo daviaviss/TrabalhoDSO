@@ -30,7 +30,7 @@ class ControladorMercado:
             if any(
                 [
                     dados["nome"] == mercado.nome,
-                    dados["numero"] == mercado.numero,
+                    dados["numero"] == mercado.endereco.numero,
                     dados["cnpj"] == mercado.cnpj,
                 ]
             ):

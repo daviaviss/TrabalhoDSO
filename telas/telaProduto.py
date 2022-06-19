@@ -101,9 +101,10 @@ class TelaProduto(TelaAbstrata):
         return id_produto
 
     def mostra_dado_produto(self, dados):
-        print("NOME & QUALIFICADORES | LOCAL | PRECO")
+        print("======================================================")
+        print("NOME & QUALIFICADORES | MERCADO | PRECO")
         print(
-            f'{dados["nome"]} {dados["qualificadores"]} | {dados["local"]} | R$ {dados["preco"]}'
+            f'{dados["nome"]} {dados["qualificadores"]} | {dados["mercado"]} | R$ {dados["preco"]}'
         )
 
     def mostra_mensagem(self, mensagem):

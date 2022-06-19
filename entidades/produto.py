@@ -30,6 +30,10 @@ class Produto:
     @property
     def precos(self):
         return self.__precos
+    
+    @property
+    def qualificadores(self):
+        return self.__qualificadores
 
     @property
     def criador(self):
