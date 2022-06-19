@@ -9,6 +9,7 @@ from controladores import (
     controladorPessoaJuridica,
     controladorQualificador,
 )
+from entidades.pessoaFisica import PessoaFisica
 from telas.tela_cessao import TelaCessao
 
 
@@ -30,8 +31,7 @@ class ControladorCessao:
             controladorPessoaJuridica.ControladorPessoaJuridica(self)
         )
         self.__tela_cessao = TelaCessao()
-        self.__usuario_atual = None
-
+        self.__usuario_atual = PessoaFisica("cpf", "fulano", "fulano@mail.com")
     @property
     def usuario_atual(self):
         return self.__usuario_atual

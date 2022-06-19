@@ -85,6 +85,7 @@ class ControladorProduto:
             "criador": produto.criador,
             "preco": preco.valor,
             "contagem_confirmacoes": preco.contador,
+            
         }
         return dados
 
@@ -219,12 +220,16 @@ class ControladorProduto:
                 "Produto ja cadastro, o contador foi incrementado!"
             )
             return
+        user = self.controlador_cessao.usuario_atual
         produto = Produto(
             dados_produto["nome"],
             dados_produto["descricao"],
             categoria,
             qualificadores,
+            mercado["mercado"],
+            user,
         )
+        mercado["mercado"].produtos.append(produto)
         preco = Preco(dados["preco"], produto)
         # import pdb; pdb.set_trace()
         produto.precos.append(preco)
