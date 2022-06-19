@@ -33,5 +33,6 @@ class TelaMercado:
         print("CNPJ do mercado: ", dados["cnpj"])
 
     def seleciona_mercado(self):
-        cnpj_mercado = input("CNPJ do mercado: ")
-        return cnpj_mercado
+        print()
+        opcao = input('CNPJ do mercado ou "0" para voltar ao menu inicial: ')
+        return opcao
