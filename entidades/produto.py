@@ -1,18 +1,18 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-
+from entidades.qualificador import Qualificador
 from entidades.preco import Preco
 
 
 class Produto:
-    def __init__(self, nome: str, descricao: str):
+    def __init__(self, nome: str, descricao: str, categoria, dados_qualificadores):
         super().__init__()
         self.__id = "1"
         self.__nome = nome
         self.__descricao = descricao
         self.__precos = []
-        self.__categoria = "categoria"
-        # self.__mercado = mercado
+        self.__categoria = categoria
+        self.__qualificadores = [Qualificador(q["titulo"], q["descricao"]) for q in dados_qualificadores]
         self.__data_criacao = datetime.now()
 
     @property
