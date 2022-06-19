@@ -3,6 +3,9 @@ class Qualificador():
     def __init__(self, titulo: str, descricao: str):
         self.__titulo = titulo
         self.__descricao = descricao
+    
+    def __str__(self):
+        return self.__titulo
 
     @property
     def titulo(self) -> str:

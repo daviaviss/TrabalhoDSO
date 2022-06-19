@@ -1,9 +1,9 @@
 class Preco():
 
-    def __init__(self, valor: float):
+    def __init__(self, valor: float, produto):
         self.__valor = valor
         self.__contador = 0
-        self.__id_produto = ""
+        self.__id_produto = produto
 
     @property
     def valor(self) -> float:
