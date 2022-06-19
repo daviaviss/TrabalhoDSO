@@ -1,6 +1,8 @@
 from entidades.endereco import Endereco
 from entidades.pessoaJuridica import PessoaJuridica
 
+
+
 class Mercado:
 
     def __init__(self, nome_mercado: str, cep, numero, cnpj, proprietario):

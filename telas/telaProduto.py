@@ -27,7 +27,7 @@ class TelaProduto(TelaAbstrata):
                 self.mostra_mensagem("Preco invalido!")
                 continue
             nome = input("Nome do produto: ")
-            descricao = input("Descricao do produto")
+            descricao = input("Descricao do produto: ")
             return {"preco": preco, "nome": nome, "descricao": descricao}
 
     def confirma_preco(self):

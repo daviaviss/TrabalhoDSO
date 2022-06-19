@@ -1,6 +1,5 @@
 from json.encoder import py_encode_basestring_ascii
 from xml.etree.ElementTree import TreeBuilder
-from controladores.controlador_cessao import ControladorCessao
 from entidades.mercado import Mercado
 from telas.telaProduto import TelaProduto
 from entidades.produto import Produto
@@ -11,7 +10,7 @@ from random import randint
 
 class ControladorProduto:
     def __init__(self, controlador_cessao):
-        self.__controlador_cessao: ControladorCessao = controlador_cessao
+        self.__controlador_cessao = controlador_cessao
         self.__produtos = []
         self.__tela_produto = TelaProduto()
 
@@ -27,9 +26,7 @@ class ControladorProduto:
     def controlador_cessao(self):
         return self.__controlador_cessao
 
-    def pega_preco_ou_confirmacao_preco_produto(
-        self, produto, atributo, modo="mais_confirmado"
-    ) -> Preco:
+    def pega_preco_ou_confirmacao_preco_produto(self, produto, atributo) -> Preco:
         """
         Como um produto pode ter mais de um preco, caso tenha, pega o preco com mais confirmacoes,
         caso haja confirmacoes com a mesma quantidade, pega, dos precos com mais confirmacoes, o de menor preco
@@ -51,7 +48,7 @@ class ControladorProduto:
                         mais_confirmados_duplicados.append(preco)
                     elif atributo == "confirmacoes":
                         mais_confirmados_duplicados.append(contagem)
-            return min(mais_confirmados_duplicados)
+            return min(mais_confirmados_duplicados, key=lambda p: p.valor)
 
         return max(infos, key=infos.get)
 
@@ -80,7 +77,7 @@ class ControladorProduto:
         return produtos
 
     def monta_dados_produto(self, produto):
-        preco = self.pega_preco_produto(produto)
+        preco = self.pega_preco_ou_confirmacao_preco_produto(produto, "preco")
         dados = {
             "nome": produto.nome,
             "mercado": produto.mercado,
@@ -182,9 +179,21 @@ class ControladorProduto:
         return True
 
     def verifica_existe_mercado(self):
-        if self.controlador_cessao.controlador_produto.produtos:
+        if self.controlador_cessao.controlador_mercado.mercados:
             return True
         return False
+
+    def cadastra_qualificadores(self):
+        dados_qualificadores = []
+        while True:
+            dados_qualificador = (
+                self.controlador_cessao.controlador_qualificador.cadastra_qualificador()
+            )
+            dados_qualificadores.append(dados_qualificador)
+            resposta = self.tela_produto.mostra_pergunta()
+            if resposta == 1:
+                break
+        return dados_qualificadores
 
     def cadastra_produto(self):
         if not self.verifica_existe_mercado():
@@ -195,12 +204,13 @@ class ControladorProduto:
 
         dados_produto = self.tela_produto.pega_dados_produto()
         mercado = self.controlador_cessao.controlador_mercado.pega_mercado_por_cnpj()
-        categoria = self.controlador_cessao.controlador_categoria.busca_categoria()
+        categoria = self.controlador_cessao.controlador_categoria.pega_categoria()
+        qualificadores = self.cadastra_qualificadores()
 
         dados = {}
         dados["nome"] = dados_produto["nome"]
         dados["preco"] = dados_produto["preco"]
-        dados["mercado"] = mercado
+        dados["mercado"] = mercado["mercado"]
         dados["categoria"] = categoria
         produto = self.verifica_produto_duplicado(dados)
         if produto:
@@ -208,40 +218,18 @@ class ControladorProduto:
             self.tela_produto.mostra_mensagem(
                 "Produto ja cadastro, o contador foi incrementado!"
             )
-        else:
-            produto = Produto(
-                dados["nome"],
-                dados["descricao"],
-                dados["categoria"],
-                dados["qualificadores"],
-            )
-            preco = Preco(dados["preco"], produto)
-            produto.precos.append(preco)
-            self.tela_produto.mostra_mensagem("Produto cadastrado com sucesso!")
-
-        for produto in self.produtos:
-            if all(
-                [
-                    dados["preco"] == produto.preco,
-                    dados["nome"] == produto.nome,
-                    dados["categoria"] == produto.categoria.nome,
-                    dados["qualificador"] == produto,
-                    self.verifica_produto_duplicado(produto, dados["qualificadores"]),
-                ]
-            ) and all(x in produto.qualificadores for x in dados["qualificadores"]):
-                produto.contador_preco += 1
-                self.tela_produto.mostra_mensagem(
-                    "Produto ja cadastrado, o contador foi incrementado!"
-                )
-                # TODO: retornar para menu principal
-        data_criacao = datetime.now()
-        preco = Preco(dados["preco"])
-        produto = Produto(dados["nome"], dados["descricao"])
+            return
+        produto = Produto(
+            dados_produto["nome"],
+            dados_produto["descricao"],
+            categoria,
+            qualificadores,
+        )
+        preco = Preco(dados["preco"], produto)
+        # import pdb; pdb.set_trace()
         produto.precos.append(preco)
-        preco.produto = produto
-
         self.produtos.append(produto)
-        self.tela_produto.mostra_mensagem("Produto cadastrado!")
+        self.tela_produto.mostra_mensagem("Produto cadastrado com sucesso!")
 
     def pega_produto(self, id_produto):
         for produto in self.produtos:

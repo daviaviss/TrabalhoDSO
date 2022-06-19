@@ -25,11 +25,17 @@ class TelaAbstrata(ABC):
             return opcao
 
     def verifica_tipo_dados(self, dados, tipo):
-        dados = {"int": int, "float": float, "dict": dict, "list": list}
+        tipos_dados = {"int": int, "float": float, "dict": dict, "list": list}
 
         for d in dados:
             try:
-                dados[tipo](d)
+                tipos_dados[tipo](d)
             except ValueError:
                 return False
         return True
+
+    def mostra_pergunta(self):
+        print("== DESEJA CONTINUAR? ==")
+        print("[0] - SIM")
+        print("[1] - NAO")
+        return self.le_numero_inteiro("Selecione uma das alternativas: ", [0, 1])

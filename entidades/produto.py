@@ -14,6 +14,7 @@ class Produto:
         self.__categoria = categoria
         self.__qualificadores = [Qualificador(q["titulo"], q["descricao"]) for q in dados_qualificadores]
         self.__data_criacao = datetime.now()
+        self.__mercado = None
 
     @property
     def precos(self):

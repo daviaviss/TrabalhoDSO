@@ -32,11 +32,12 @@ class ControladorCategoria:
         for c in self.categorias:
             self.tela_categoria.mostra_categoria(c)
             
-    def busca_categoria(self):
-        nome = self.tela_categoria.pega_nome_categoria()
+    def busca_categoria(self, nome):
         for c in self.categorias:
             if c.nome == nome:
                 return c
-        self.tela_categoria.mostra_mensagem("Nao existe uma categoria com esse nome!")
         return False
     
+    def pega_categoria(self):
+        opcao = self.tela_categoria.mostra_categorias()
+        return self.busca_categoria(CATEGORIAS[opcao])

@@ -15,6 +15,7 @@ from telas.tela_cessao import TelaCessao
 class ControladorCessao:
     def __init__(self):
         self.__controlador_produto = controladorProduto.ControladorProduto(self)
+        self.__controlador_qualificador = controladorQualificador.ControladorQualificador(self)
         self.__controlador_preco = controladorPreco.ControladorPreco(self)
         self.__controlador_mercado = controladorMercado.ControladorMercado(self)
         self.__controlador_menu_principal = (
@@ -39,6 +40,9 @@ class ControladorCessao:
     def usuario_atual(self, valor):
         self.__usuario_atual = valor
     
+    @property
+    def controlador_qualificador(self):
+        return self.__controlador_qualificador
     @property
     def controlador_produto(self):
         return self.__controlador_produto

@@ -9,9 +9,9 @@ class TelaQualificador:
         return titulo
     
     def pega_dados_qualificador(self):
-        titulo = self.pega_titulo_qualificador
-        descriacao = input("Descricao do qualificador: ")
-        return {"titulo": titulo, "descricao": descriacao}
+        titulo = self.pega_titulo_qualificador()
+        descricao = input("Descricao do qualificador: ")
+        return {"titulo": titulo, "descricao": descricao}
     
     def mostra_mensagem(self, msg):
         print(msg)

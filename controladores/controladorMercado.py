@@ -1,5 +1,6 @@
 from ossaudiodev import control_labels
 from entidades.mercado import Mercado
+from entidades.pessoaFisica import PessoaFisica
 from telas.telaMercado import TelaMercado
 
 
@@ -7,6 +8,9 @@ class ControladorMercado:
     def __init__(self, controlador_cessao):
         self.__controlador_cessao = controlador_cessao
         self.__mercados = []
+        user = PessoaFisica("12279497905", "nome", "email")
+        mercado = Mercado("nome", "111", "11", "79.015.829/0001-18", user)
+        self.__mercados.append(mercado)
         self.__tela_mercado = TelaMercado()
 
     @property
@@ -68,11 +72,16 @@ class ControladorMercado:
             )
 
     def pega_mercado_por_cnpj(self):
-        cnpj = self.tela_mercado.seleciona_mercado()
-        for index, mercado in enumerate(self.mercados):
-            if mercado.cnpj == cnpj:
-                return {"mercado": mercado, "index": index}
-        return {}
+        while True:
+            cnpj = self.tela_mercado.seleciona_mercado()
+            for index, mercado in enumerate(self.mercados):
+                if mercado.cnpj == cnpj:
+                    return {"mercado": mercado, "index": index}
+            self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ!")
+            opcao = self.tela_mercado.mostra_pergunta()
+            if opcao == 1:
+                self.controlador_cessao.controlador_menu_principal.abre_menu_principal()
+            continue
 
     def altera_mercado(self) -> None:
         dados_mercado = self.pega_mercado_por_cnpj()
@@ -135,3 +144,7 @@ class ControladorMercado:
             if opcao == 0:
                 break
             opcoes[opcao]()
+
+
+user = PessoaFisica("12279497905", "nome", "email")
+mercado = Mercado("nome", "111", "11", "79.015.829/0001-18", user)
