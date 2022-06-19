@@ -27,3 +27,14 @@ class ControladorCategoria:
     @property
     def tela_categoria(self):
         return self.__tela_categoria
+
+    def lista_categorias(self):
+        for c in self.categorias:
+            self.tela_categoria.mostra_categoria(c)
+            
+    def busca_categoria(self):
+        nome = self.tela_categoria.pega_nome_categoria()
+        for c in self.categorias:
+            if c.nome == nome:
+                return c
+        return False
