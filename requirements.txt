@@ -1,0 +1,2 @@
+validate-docbr==1.10.0
+email-validator==1.2.1
