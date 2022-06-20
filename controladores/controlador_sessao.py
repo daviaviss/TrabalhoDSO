@@ -11,10 +11,10 @@ from controladores import (
 )
 from entidades.pessoa_fisica import PessoaFisica
 from entidades.pessoa_juridica import PessoaJuridica
-from telas.tela_cessao import TelaCessao
+from telas.tela_sessao import TelaSessao
 
 
-class ControladorCessao:
+class ControladorSessao:
     def __init__(self):
         self.__controlador_produto = controlador_produto.ControladorProduto(self)
         self.__controlador_qualificador = (
@@ -33,7 +33,7 @@ class ControladorCessao:
         self.__controlador_pessoa_juridica = (
             controlador_pessoa_juridica.ControladorPessoaJuridica(self)
         )
-        self.__tela_cessao = TelaCessao()
+        self.__tela_sessao = TelaSessao()
         self.__usuario_atual = None
 
     @property
@@ -57,8 +57,8 @@ class ControladorCessao:
         return self.__controlador_menu_principal
 
     @property
-    def tela_cessao(self):
-        return self.__tela_cessao
+    def tela_sessao(self):
+        return self.__tela_sessao
 
     @property
     def controlador_mercado(self):
@@ -88,18 +88,18 @@ class ControladorCessao:
         self.abre_menu()
 
     def encerra_programa(self):
-        self.tela_cessao.mostra_mensagem("=== PROGRAMA ENCERRADO! ===")
+        self.tela_sessao.mostra_mensagem("=== PROGRAMA ENCERRADO! ===")
         exit(0)
 
     def abre_menu_opcoes(self):
         self.controlador_menu_principal.abre_menu_principal()
 
     def entrar(self):
-        email = self.tela_cessao.pega_email()
+        email = self.tela_sessao.pega_email()
         pf = self.controlador_pessoa_fisica.pega_pessoa_por_email(email)
         pj = self.controlador_pessoa_juridica.pega_pessoa_por_email(email)
         if not pj and not pf:
-            self.tela_cessao.mostra_mensagem("Nao existe um usuario com esse email!")
+            self.tela_sessao.mostra_mensagem("Nao existe um usuario com esse email!")
             return
         self.usuario_atual = pf or pj
         self.controlador_menu_principal.abre_menu_principal()
@@ -123,5 +123,5 @@ class ControladorCessao:
             4: self.lista_usuarios,
         }
         while True:
-            opcao_escolhida = self.tela_cessao.mostra_menu_principal()
+            opcao_escolhida = self.tela_sessao.mostra_menu_principal()
             opcoes[opcao_escolhida]()

@@ -9,8 +9,8 @@ from datetime import datetime
 
 
 class ControladorProduto:
-    def __init__(self, controlador_cessao):
-        self.__controlador_cessao = controlador_cessao
+    def __init__(self, controlador_sessao):
+        self.__controlador_sessao = controlador_sessao
         self.__produtos = []
         self.__tela_produto = TelaProduto()
 
@@ -23,8 +23,8 @@ class ControladorProduto:
         return self.__tela_produto
 
     @property
-    def controlador_cessao(self):
-        return self.__controlador_cessao
+    def controlador_sessao(self):
+        return self.__controlador_sessao
 
     def compara_dados_produto(self, produto, dados_comparar):
         # import pdb; pdb.set_trace()
@@ -86,7 +86,7 @@ class ControladorProduto:
 
     def ordena_produto_por_preco(self, produtos, modo):
         precos = []
-        for preco in self.controlador_cessao.controlador_preco.precos:
+        for preco in self.controlador_sessao.controlador_preco.precos:
             for produto in produtos:
                 if preco in produto.precos:
                     precos.append(preco)
@@ -107,7 +107,7 @@ class ControladorProduto:
 
     def ordena_por_confirmacoes_preco(self, produtos, modo):
         precos = []
-        for preco in self.controlador_cessao.controlador_preco.precos:
+        for preco in self.controlador_sessao.controlador_preco.precos:
             for produto in produtos:
                 if preco in produto.precos:
                     precos.append(preco)
@@ -136,7 +136,7 @@ class ControladorProduto:
         return True
 
     def verifica_existe_mercado(self):
-        if self.controlador_cessao.controlador_mercado.mercados:
+        if self.controlador_sessao.controlador_mercado.mercados:
             return True
         return False
 
@@ -144,7 +144,7 @@ class ControladorProduto:
         dados_qualificadores = []
         while True:
             dados_qualificador = (
-                self.controlador_cessao.controlador_qualificador.cadastra_qualificador()
+                self.controlador_sessao.controlador_qualificador.cadastra_qualificador()
             )
             dados_qualificadores.append(dados_qualificador)
             resposta = self.tela_produto.mostra_pergunta()
@@ -160,12 +160,12 @@ class ControladorProduto:
             return
 
         dados_produto = self.tela_produto.pega_dados_produto()
-        preco = self.controlador_cessao.controlador_preco.cadastra_preco()
-        mercado = self.controlador_cessao.controlador_mercado.pega_mercado_por_cnpj()
+        preco = self.controlador_sessao.controlador_preco.cadastra_preco()
+        mercado = self.controlador_sessao.controlador_mercado.pega_mercado_por_cnpj()
         if not mercado:
             self.tela_produto.mostra_mensagem("Mercado nao encontrado!")
             return
-        categoria = self.controlador_cessao.controlador_categoria.pega_categoria()
+        categoria = self.controlador_sessao.controlador_categoria.pega_categoria()
         qualificadores = self.cadastra_qualificadores()
 
         dados = {}
@@ -174,7 +174,7 @@ class ControladorProduto:
         dados["mercado"] = mercado["mercado"]
         dados["categoria"] = categoria
 
-        user = self.controlador_cessao.usuario_atual
+        user = self.controlador_sessao.usuario_atual
         produto = Produto(
             dados_produto["nome"],
             dados_produto["descricao"],
@@ -227,7 +227,7 @@ class ControladorProduto:
 
     def verifica_permissao(self, produto):
         permissao = (
-            self.controlador_cessao.controlador_mercado.verifica_produto_mercado(
+            self.controlador_sessao.controlador_mercado.verifica_produto_mercado(
                 produto
             )
         )
@@ -242,12 +242,13 @@ class ControladorProduto:
                 if self.tela_produto.mostra_pergunta() == 1:
                     return
                 continue
-            permissao = self.verifica_permissao(produto)
-            if not permissao:
-                self.tela_produto.mostra_mensagem(
-                    "Voce nao tem permissao para alterar o preco desse produto"
-                )
-                return
+            if hasattr(self.controlador_sessao.usuario_atual.cnpj):
+                permissao = self.verifica_permissao(produto)
+                if not permissao:
+                    self.tela_produto.mostra_mensagem(
+                        "Voce nao tem permissao para alterar o preco desse produto"
+                    )
+                    return
             valor_preco = self.tela_produto.pega_valor_preco()
             for preco in produto.precos:
                 if preco.valor == valor_preco:
@@ -259,7 +260,7 @@ class ControladorProduto:
 
             preco = Preco(valor_preco, produto)
             produto.precos.append(preco)
-            self.controlador_cessao.controlador_preco.precos.append(preco)
+            self.controlador_sessao.controlador_preco.precos.append(preco)
             self.tela_produto.mostra_mensagem("Preco cadastrado com sucesso!")
             break
 
@@ -288,7 +289,7 @@ class ControladorProduto:
                 else:
                     continue
             dados_qualificadores = (
-                self.controlador_cessao.controlador_qualificador.cadastra_qualificador()
+                self.controlador_sessao.controlador_qualificador.cadastra_qualificador()
             )
             produto.qualificadores.append(
                 Qualificador(
@@ -311,7 +312,7 @@ class ControladorProduto:
                     continue
             for p in self.produtos:
                 for qualificador in p.qualificadores:
-                    self.controlador_cessao.controlador_qualificador.lista_qualificadores(
+                    self.controlador_sessao.controlador_qualificador.lista_qualificadores(
                         qualificador
                     )
             id_qualificador = self.tela_produto.pega_dado_generico(

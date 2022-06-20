@@ -4,8 +4,8 @@ from telas.tela_mercado import TelaMercado
 
 
 class ControladorMercado:
-    def __init__(self, controlador_cessao):
-        self.__controlador_cessao = controlador_cessao
+    def __init__(self, controlador_sessao):
+        self.__controlador_sessao = controlador_sessao
         self.__mercados = []
         self.__mercados = []
         self.__tela_mercado = TelaMercado()
@@ -15,8 +15,8 @@ class ControladorMercado:
         return self.__mercados
 
     @property
-    def controlador_cessao(self):
-        return self.__controlador_cessao
+    def controlador_sessao(self):
+        return self.__controlador_sessao
 
     @property
     def tela_mercado(self):
@@ -32,7 +32,7 @@ class ControladorMercado:
                 ]
             ):
                 return True
-        for pf in self.controlador_cessao.controlador_pessoa_juridica.pessoas_juridicas:
+        for pf in self.controlador_sessao.controlador_pessoa_juridica.pessoas_juridicas:
             if pf.cnpj == dados["cnpj"]:
                 return True
 
@@ -49,7 +49,7 @@ class ControladorMercado:
             dados["cep"],
             dados["numero"],
             dados["cnpj"],
-            self.controlador_cessao.usuario_atual,
+            self.controlador_sessao.usuario_atual,
         )
         self.mercados.append(novo_mercado)
         self.tela_mercado.mostra_mensagem("Mercado criado com sucesso")
@@ -66,7 +66,7 @@ class ControladorMercado:
         if not mercado:
             self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ")
             return
-        if mercado.proprietario == self.controlador_cessao.usuario_atual:
+        if mercado.proprietario == self.controlador_sessao.usuario_atual:
             del self.mercados[index]
             self.tela_mercado.mostra_mensagem("Mercado deletado com sucesso!")
         else:
@@ -99,7 +99,7 @@ class ControladorMercado:
             return
         if (
             dados_mercado["mercado"].proprietario
-            != self.controlador_cessao.usuario_atual
+            != self.controlador_sessao.usuario_atual
         ):
             self.tela_mercado.mostra_mensagem(
                 "Voce nao pode alterar um mercado que voce nao eh o proprietario!"
@@ -132,7 +132,7 @@ class ControladorMercado:
     def edita_endereco_mercado(self):
         mercado = self.pega_mercado_por_cnpj()
         if mercado:
-            dados = self.controlador_cessao.controlador_endereco.cadastra_endereco()
+            dados = self.controlador_sessao.controlador_endereco.cadastra_endereco()
             mercado["mercado"].endereco = Endereco(dados["cep"], dados["numero"])
             self.tela_mercado.mostra_mensagem("Endereco atualizado com sucesso!")
         else:
@@ -142,7 +142,7 @@ class ControladorMercado:
         mercado = self.pega_mercado_por_cnpj()
         if mercado:
             id_produto = self.tela_mercado.pega_dado_generico("ID do produto: ")
-            produto = self.controlador_cessao.controlador_produto.pega_produto(
+            produto = self.controlador_sessao.controlador_produto.pega_produto(
                 id_produto
             )
             if produto:
@@ -164,7 +164,7 @@ class ControladorMercado:
     def lista_produtos_mercado(self):
         mercado = self.pega_mercado_por_cnpj()
         if mercado:
-            self.controlador_cessao.controlador_produto.lista_produtos(
+            self.controlador_sessao.controlador_produto.lista_produtos(
                 mercado["mercado"].produtos, montar_dados=True
             )
         elif not mercado:
@@ -177,7 +177,7 @@ class ControladorMercado:
     def verifica_produto_mercado(self, produto):
         mercados = []
         for m in self.mercados:
-            if m.proprietario == self.controlador_cessao.usuario_atual:
+            if m.proprietario == self.controlador_sessao.usuario_atual:
                 mercados.append(m)
         for mercado_usuario in mercados:
             for p in mercado_usuario.produtos:
@@ -238,13 +238,13 @@ class ControladorMercado:
                     "diferenca_precos": self.pega_evolucao_precos(p.precos),
                 }
             )
-        self.controlador_cessao.controlador_produto.lista_relatorio_produto(dados)
+        self.controlador_sessao.controlador_produto.lista_relatorio_produto(dados)
 
     def volta_menu_mercado(self):
         self.__tela_mercado.mostra_menu_inical()
 
     def abre_menu_mercado(self):
-        if hasattr(self.controlador_cessao.usuario_atual, "cnpj"):
+        if hasattr(self.controlador_sessao.usuario_atual, "cnpj"):
             tipo_usuario = "juridico"
         else:
             tipo_usuario = "fisico"

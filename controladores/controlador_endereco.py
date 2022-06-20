@@ -2,13 +2,13 @@ from telas import tela_endereco
 
 
 class ControladorEndereco:
-    def __init__(self, controlador_cessao):
-        self.__controlador_cessao = controlador_cessao
+    def __init__(self, controlador_sessao):
+        self.__controlador_sessao = controlador_sessao
         self.__tela_endereco = tela_endereco.TelaEndereco()
 
     @property
-    def controlador_cessao(self):
-        return self.__controlador_cessao
+    def controlador_sessao(self):
+        return self.__controlador_sessao
 
     @property
     def tela_endereco(self):

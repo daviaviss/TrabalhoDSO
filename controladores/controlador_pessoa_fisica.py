@@ -4,14 +4,14 @@ from entidades.pessoa_fisica import PessoaFisica
 
 
 class ControladorPessoaFisica:
-    def __init__(self, controlador_cessao):
-        self.__controlador_cessao = controlador_cessao
+    def __init__(self, controlador_sessao):
+        self.__controlador_sessao = controlador_sessao
         self.__pessoas_fisicas = []
         self.__tela_pessoa_fisica = TelaPessoaFisica()
 
     @property
-    def controlador_cessao(self):
-        return self.__controlador_cessao
+    def controlador_sessao(self):
+        return self.__controlador_sessao
 
     @property
     def pessoas_fisicas(self):
@@ -51,7 +51,7 @@ class ControladorPessoaFisica:
 
     def edita_usuario_fisico(self):
         dados = self.tela_pessoa_fisica.pega_nome_email_usuario()
-        user = self.controlador_cessao.usuario_atual
+        user = self.controlador_sessao.usuario_atual
         editado = False
         if dados.get("nome"):
             editado = True
@@ -66,8 +66,8 @@ class ControladorPessoaFisica:
 
     def exclui_usuario(self):
         opcao = self.tela_pessoa_fisica.mostra_tela_confirmacao()
-        self.pessoas_fisicas.remove(self.controlador_cessao.usuario_atual)
-        self.controlador_cessao.abre_menu()
+        self.pessoas_fisicas.remove(self.controlador_sessao.usuario_atual)
+        self.controlador_sessao.abre_menu()
 
     def abre_tela(self):
         opcoes = {

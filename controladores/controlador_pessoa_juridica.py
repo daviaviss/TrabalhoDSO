@@ -4,14 +4,14 @@ from telas.tela_pessoa_juridica import TelaPessoaJuridica
 
 
 class ControladorPessoaJuridica(ControladorPessoaAbstrato):
-    def __init__(self, controlador_cessao):
-        self.__controlador_cessao = controlador_cessao
+    def __init__(self, controlador_sessao):
+        self.__controlador_sessao = controlador_sessao
         self.__pessoas_juridicas = []
         self.__tela_pessoa_juridica = TelaPessoaJuridica()
 
     @property
-    def controlador_cessao(self):
-        return self.__controlador_cessao
+    def controlador_sessao(self):
+        return self.__controlador_sessao
 
     @property
     def tela_pessoa_juridica(self):
@@ -54,7 +54,7 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
 
     def edita_usuario_juridico(self):
         dados = self.tela_pessoa_juridica.pega_nome_email_usuario()
-        user = self.controlador_cessao.usuario_atual
+        user = self.controlador_sessao.usuario_atual
         if dados.get("nome"):
             editado = True
             user.nome = dados["nome"]
@@ -67,8 +67,8 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
 
     def exclui_usuario(self):
         opcao = self.tela_pessoa_juridica.mostra_tela_confirmacao()
-        self.pessoas_juridicas.remove(self.controlador_cessao.usuario_atual)
-        self.controlador_cessao.abre_menu()
+        self.pessoas_juridicas.remove(self.controlador_sessao.usuario_atual)
+        self.controlador_sessao.abre_menu()
 
     def abre_tela(self):
         opcoes = {

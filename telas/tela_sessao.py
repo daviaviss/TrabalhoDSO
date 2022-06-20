@@ -2,7 +2,7 @@ from telas.tela_abstrata import TelaAbstrata
 from validate_docbr import CPF, CNPJ
 
 
-class TelaCessao(TelaAbstrata):
+class TelaSessao(TelaAbstrata):
     def mostra_menu_principal(self):
         print("--- MENU PRINCIPAL ---")
         print("[1] - ENTRAR")
