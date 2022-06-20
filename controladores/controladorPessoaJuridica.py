@@ -2,6 +2,7 @@ from controladores.controlador_pessoa_abstrato import ControladorPessoaAbstrato
 from entidades.pessoaJuridica import PessoaJuridica
 from telas.telaPessoaJuridica import TelaPessoaJuridica
 
+
 class ControladorPessoaJuridica(ControladorPessoaAbstrato):
     def __init__(self, controlador_cessao):
         self.__controlador_cessao = controlador_cessao
@@ -29,13 +30,12 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
             if p.cnpj == cnpj or p.email == email:
                 return True
         return False
-    
+
     def pega_pessoa_por_email(self, email):
         for p in self.pessoas_juridicas:
             if p.email == email:
                 return p
         return False
-
 
     def cadastra_pessoa_juridica(self):
         while True:
@@ -69,7 +69,6 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
         opcao = self.tela_pessoa_juridica.mostra_tela_confirmacao()
         self.pessoas_juridicas.remove(self.controlador_cessao.usuario_atual)
         self.controlador_cessao.abre_menu()
-    
 
     def abre_tela(self):
         opcoes = {
@@ -77,7 +76,7 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
             2: self.exclui_usuario,
         }
         while True:
-           opcao = self.tela_pessoa_juridica.menu_usuario()
-           if opcao == 0:
-               break
-           opcoes[opcao]()
+            opcao = self.tela_pessoa_juridica.menu_usuario()
+            if opcao == 0:
+                break
+            opcoes[opcao]()

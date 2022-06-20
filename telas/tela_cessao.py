@@ -1,6 +1,5 @@
 from telas.tela_abstrata import TelaAbstrata
 from validate_docbr import CPF, CNPJ
-from email_validator import validate_email
 
 
 class TelaCessao(TelaAbstrata):

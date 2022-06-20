@@ -1,6 +1,5 @@
-from ossaudiodev import control_labels
+from entidades.endereco import Endereco
 from entidades.mercado import Mercado
-from entidades.pessoaFisica import PessoaFisica
 from telas.telaMercado import TelaMercado
 
 
@@ -8,9 +7,7 @@ class ControladorMercado:
     def __init__(self, controlador_cessao):
         self.__controlador_cessao = controlador_cessao
         self.__mercados = []
-        user = PessoaFisica("12279497905", "nome", "email")
-        mercado = Mercado("nome", "111", "11", "79.015.829/0001-18", user)
-        self.__mercados.append(mercado)
+        self.__mercados = []
         self.__tela_mercado = TelaMercado()
 
     @property
@@ -35,14 +32,17 @@ class ControladorMercado:
                 ]
             ):
                 return True
+        for pf in self.controlador_cessao.controlador_pessoa_juridica.pessoas_juridicas:
+            if pf.cnpj == dados["cnpj"]:
+                return True
+
         return False
 
     def cadastra_mercado(self) -> None:
         dados = self.tela_mercado.pega_dados_mercado()
         if self.verifica_dados_duplicados(dados):
-            self.tela_mercado.mostra_mensagem(
-                "Um mercado com um dos dos dados inseridos ja existe!"
-            )
+            self.tela_mercado.mostra_mensagem("Esse CNPJ ja foi cadastrado!")
+            return
 
         novo_mercado = Mercado(
             dados["nome"],
@@ -55,6 +55,9 @@ class ControladorMercado:
         self.tela_mercado.mostra_mensagem("Mercado criado com sucesso")
 
     def lista_mercados(self) -> None:
+        if not self.mercados:
+            self.tela_mercado.mostra_mensagem("Nao existe mercado para ser listado!")
+            return
         for mercado in self.mercados:
             self.tela_mercado.mostra_dados_mercado(mercado)
 
@@ -71,6 +74,12 @@ class ControladorMercado:
                 "Voce nao pode deletar um mercado que voce nao eh o proprietario!"
             )
 
+    def altera_cep_mercado(self):
+        dados_mercado = self.pega_mercado_por_cnpj()
+        if not dados_mercado:
+            self.tela_mercado.mostra_mensagem("Um mercado com esse CNPJ nao existe!")
+            return
+
     def pega_mercado_por_cnpj(self):
         while True:
             cnpj = self.tela_mercado.seleciona_mercado()
@@ -80,7 +89,7 @@ class ControladorMercado:
             self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ!")
             opcao = self.tela_mercado.mostra_pergunta()
             if opcao == 1:
-                self.controlador_cessao.controlador_menu_principal.abre_menu_principal()
+                return False
             continue
 
     def altera_mercado(self) -> None:
@@ -111,16 +120,125 @@ class ControladorMercado:
 
         self.tela_mercado.mostra_mensagem("Mercado alterado com sucesso!")
 
-    def lista_produtos_mercado(self, cnpj):
-        mercado, _ = self.pega_mercado_por_cnpj(cnpj)
+    def edita_nome_mercado(self):
+        mercado = self.pega_mercado_por_cnpj()
         if mercado:
-            produtos = []
-            for cadastro in mercado.cadastros:
-                produtos.append(cadastro.produto)
-            self.__controlado_sistema.__controlador_produto.lista_produtos(produtos)
+            novo_nome = self.tela_mercado.pega_dado_generico("Novo nome do mercado: ")
+            mercado["mercado"].nome = novo_nome
+            self.tela_mercado.mostra_mensagem("Nome atualizado com sucesso!")
         else:
-            self.__tela_mercado.mostra_mensagem("Não existe um mercado com esse CNPJ.")
-            # TODO: mandar usuario para tela inicala novamente
+            self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ!")
+
+    def edita_endereco_mercado(self):
+        mercado = self.pega_mercado_por_cnpj()
+        if mercado:
+            dados = self.controlador_cessao.controlador_endereco.cadastra_endereco()
+            mercado["mercado"].endereco = Endereco(dados["cep"], dados["numero"])
+            self.tela_mercado.mostra_mensagem("Endereco atualizado com sucesso!")
+        else:
+            self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ!")
+
+    def exlui_produto_mercado(self):
+        mercado = self.pega_mercado_por_cnpj()
+        if mercado:
+            id_produto = self.tela_mercado.pega_dado_generico("ID do produto: ")
+            produto = self.controlador_cessao.controlador_produto.pega_produto(
+                id_produto
+            )
+            if produto:
+                for index, p in enumerate(mercado["mercado"].produtos):
+                    if str(p.id) == id_produto:
+                        del mercado["mercado"].produtos[index]
+                        self.tela_mercado.mostra_mensagem(
+                            "Produto deletado com sucesso!"
+                        )
+                        return
+                self.tela_mercado.mostra_mensagem(
+                    "Nao existe um produto com esse id no mercado elecionado!"
+                )
+            else:
+                self.tela_mercado.mostra_mensagem("Nao existe um produto com esse ID!")
+        else:
+            self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ!")
+
+    def lista_produtos_mercado(self):
+        mercado = self.pega_mercado_por_cnpj()
+        if mercado:
+            self.controlador_cessao.controlador_produto.lista_produtos(
+                mercado["mercado"].produtos, montar_dados=True
+            )
+        elif not mercado:
+            self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ!")
+            return
+
+        if not mercado["mercado"].produtos:
+            self.tela_mercado.mostra_mensagem("Esse mercado nao contem produtos!")
+
+    def verifica_produto_mercado(self, produto):
+        mercados = []
+        for m in self.mercados:
+            if m.proprietario == self.controlador_cessao.usuario_atual:
+                mercados.append(m)
+        for mercado_usuario in mercados:
+            for p in mercado_usuario.produtos:
+                if p == produto:
+                    return True
+
+        return False
+
+    def ordena_precos_por_data(self, precos):
+        return precos.sort(key=lambda p: p.data_postagem, reverse=True)
+
+    def pega_maior_menor_preco_produto(self, produto):
+        precos_produtos = produto.precos
+        maior_preco = max(precos_produtos, key=lambda p: p.valor)
+        menor_preco = min(precos_produtos, key=lambda p: p.valor)
+        return menor_preco, maior_preco
+
+    def pega_evolucao_precos(self, precos):
+        precos_ordenados = self.ordena_precos_por_data(precos)
+        try:
+            if precos_ordenados[-1].valor == 0:
+                diferenca = precos_ordenados[0] * 100
+                return diferenca
+            elif precos_ordenados[0].valor == 0:
+                diferenca = (precos_ordenados[-1].valor * 100) * -1
+                return diferenca
+
+            elif precos_ordenados[0].valor < precos_ordenados[-1].valor:
+                diferenca = (
+                    (precos_ordenados[0].valor / precos_ordenados[-1]) * 100
+                ) * -1
+            else:
+                diferenca = (precos_ordenados[0].valor / precos_ordenados[-1]) * 100
+            return diferenca
+        except:
+            return "Nao foi possivel calcular"
+
+    def gera_relatorio_mercado(self):
+        if not self.mercados:
+            self.tela_mercado.mostra_mensagem(
+                "Nao existe mercado para gerar relatorio!"
+            )
+            return
+        mercado = self.pega_mercado_por_cnpj()
+        if not mercado:
+            self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ!")
+            return
+        dados = []
+
+        for p in mercado["mercado"].produtos:
+            menor_preco, maior_preco = self.pega_maior_menor_preco_produto(p)
+
+            dados.append(
+                {
+                    "id_produto": str(p.id),
+                    "maior_preco": maior_preco.valor,
+                    "menor_preco": menor_preco.valor,
+                    "diferenca_precos": self.pega_evolucao_precos(p.precos),
+                }
+            )
+        self.controlador_cessao.controlador_produto.lista_relatorio_produto(dados)
 
     def volta_menu_mercado(self):
         self.__tela_mercado.mostra_menu_inical()
@@ -135,6 +253,11 @@ class ControladorMercado:
             2: self.cadastra_mercado,
             3: self.altera_mercado,
             4: self.exclui_mercado,
+            5: self.lista_produtos_mercado,
+            6: self.edita_endereco_mercado,
+            7: self.edita_nome_mercado,
+            8: self.exlui_produto_mercado,
+            9: self.gera_relatorio_mercado,
         }
         while True:
             if tipo_usuario == "fisico":
@@ -144,7 +267,3 @@ class ControladorMercado:
             if opcao == 0:
                 break
             opcoes[opcao]()
-
-
-user = PessoaFisica("12279497905", "nome", "email")
-mercado = Mercado("nome", "111", "11", "79.015.829/0001-18", user)

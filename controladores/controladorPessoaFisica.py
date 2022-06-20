@@ -69,14 +69,13 @@ class ControladorPessoaFisica:
         self.pessoas_fisicas.remove(self.controlador_cessao.usuario_atual)
         self.controlador_cessao.abre_menu()
 
-    
     def abre_tela(self):
         opcoes = {
             1: self.edita_usuario_fisico,
             2: self.exclui_usuario,
         }
         while True:
-           opcao = self.tela_pessoa_fisica.menu_usuario()
-           if opcao == 0:
-               break
-           opcoes[opcao]()
+            opcao = self.tela_pessoa_fisica.menu_usuario()
+            if opcao == 0:
+                break
+            opcoes[opcao]()

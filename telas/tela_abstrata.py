@@ -39,3 +39,15 @@ class TelaAbstrata(ABC):
         print("[0] - SIM")
         print("[1] - NAO")
         return self.le_numero_inteiro("Selecione uma das alternativas: ", [0, 1])
+
+    def verifica_dados(self, dados):
+        if all(dados):
+            return True
+        return False
+
+    def pega_dado_generico(self, msg):
+        while True:
+            dado = input(msg)
+            if not self.verifica_dados([dado]):
+                continue
+            return dado

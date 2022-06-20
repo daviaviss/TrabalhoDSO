@@ -1,7 +1,6 @@
-from abc import ABC, abstractmethod
 from datetime import datetime
 from entidades.qualificador import Qualificador
-from entidades.preco import Preco
+import uuid
 
 
 class Produto:
@@ -14,8 +13,7 @@ class Produto:
         mercado,
         criador,
     ):
-        super().__init__()
-        self.__id = "1"
+        self.__id = uuid.uuid4()
         self.__nome = nome
         self.__descricao = descricao
         self.__precos = []
@@ -30,7 +28,7 @@ class Produto:
     @property
     def precos(self):
         return self.__precos
-    
+
     @property
     def qualificadores(self):
         return self.__qualificadores

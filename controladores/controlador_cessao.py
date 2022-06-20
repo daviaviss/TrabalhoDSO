@@ -10,13 +10,16 @@ from controladores import (
     controladorQualificador,
 )
 from entidades.pessoaFisica import PessoaFisica
+from entidades.pessoaJuridica import PessoaJuridica
 from telas.tela_cessao import TelaCessao
 
 
 class ControladorCessao:
     def __init__(self):
         self.__controlador_produto = controladorProduto.ControladorProduto(self)
-        self.__controlador_qualificador = controladorQualificador.ControladorQualificador(self)
+        self.__controlador_qualificador = (
+            controladorQualificador.ControladorQualificador(self)
+        )
         self.__controlador_preco = controladorPreco.ControladorPreco(self)
         self.__controlador_mercado = controladorMercado.ControladorMercado(self)
         self.__controlador_menu_principal = (
@@ -31,18 +34,20 @@ class ControladorCessao:
             controladorPessoaJuridica.ControladorPessoaJuridica(self)
         )
         self.__tela_cessao = TelaCessao()
-        self.__usuario_atual = PessoaFisica("cpf", "fulano", "fulano@mail.com")
+        self.__usuario_atual = None
+
     @property
     def usuario_atual(self):
         return self.__usuario_atual
-    
+
     @usuario_atual.setter
     def usuario_atual(self, valor):
         self.__usuario_atual = valor
-    
+
     @property
     def controlador_qualificador(self):
         return self.__controlador_qualificador
+
     @property
     def controlador_produto(self):
         return self.__controlador_produto
@@ -93,7 +98,6 @@ class ControladorCessao:
         email = self.tela_cessao.pega_email()
         pf = self.controlador_pessoa_fisica.pega_pessoa_por_email(email)
         pj = self.controlador_pessoa_juridica.pega_pessoa_por_email(email)
-        # import pdb; pdb.set_trace()
         if not pj and not pf:
             self.tela_cessao.mostra_mensagem("Nao existe um usuario com esse email!")
             return
@@ -102,7 +106,7 @@ class ControladorCessao:
 
     def cadastra_usuario_fisico(self):
         self.controlador_pessoa_fisica.cadastra_pessoa_fisica()
-    
+
     def cadastra_usuario_jurifico(self):
         self.controlador_pessoa_juridica.cadastra_pessoa_juridica()
 

@@ -6,46 +6,50 @@ class TelaProduto(TelaAbstrata):
         print("--- MENU PRODUTOS ---")
         print("[1] - LISTAR PRODUTOS")
         print("[2] - CADASTRAR PRODUTO")
-        print("[3] - CADASTRAR QUALIFICADOR")
-        print("[4] - ADICIONAR PRECO A UM PRODUTO")
-        print("[5] - CONFIRMA PRECO DE UM PRODUTO")
-        print("[6] - EDITAR UM PRODUTO")
-        print("[7] - EXCLUIR UM PRODUTO")
-        print("[8] - BUSCAR UM PRODUTO")
+        print("[3] - ADICIONAR PRECO A UM PRODUTO")
+        print("[4] - CONFIRMA PRECO DE UM PRODUTO")
+        print("[5] - EDITAR NOME PRODUTO")
+        print("[6] - EDITAR DESCRICAO PRODUTO")
+        print("[7] - ADICIONAR QUALIFICADOR EM UM PRODUTO")
+        print("[8] - EXCLUIR QUALIFICADOR DE UM PRODUTO")
+        print("[9] - EXCLUIR UM PRODUTO")
+        print("[10] - BUSCAR UM PRODUTO")
         print("[0] - VOLTAR")
-        inteiros_validos = [1, 2, 3, 4, 5, 6, 7, 8, 0]
+        inteiros_validos = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 0]
         return self.le_numero_inteiro(
             "Escolha uma das opcoes acima: ", inteiros_validos
         )
 
     def pega_dados_produto(self):
         while True:
-            dados = {}
-            print("---- CADASTRO DE PRODUTO ----")
-            preco = input("Preço do produto: ")
-            if not self.verifica_tipo_dados([preco], "float"):
-                self.mostra_mensagem("Preco invalido!")
-                continue
+            dados = []
             nome = input("Nome do produto: ")
             descricao = input("Descricao do produto: ")
-            return {"preco": preco, "nome": nome, "descricao": descricao}
+            dados.append(nome)
+            dados.append(descricao)
+            if not self.verifica_dados(dados):
+                print("Dados invalidos!")
+                continue
+            return {"nome": nome, "descricao": descricao}
 
-    def confirma_preco(self):
-        id_produto = input("ID do produto que deseja confirmar o preço: ")
-        return id_produto
+    def pega_valor_preco(self):
+        while True:
+            preco = input("Insira o preco: ")
+            try:
+                preco = float(preco)
+            except ValueError:
+                print("Insira um preco valido!")
+                continue
+            return preco
 
-    def adiciona_preco(self):
-        dados = {}
-        dados["preco"] = float(input("Preço: "))
-        dados["id_produto"] = self.pega_id_produto()
-        return dados
-
-    def pega_id_produto(self):
-        id_pruduto = input("Insira o ID do produto: ")
-        return id_pruduto
+    def mostra_relatorio_produto(self, dados):
+        print("----------------------------------------------------------")
+        print("PRODUTO ID: ", dados["id_produto"])
+        print("MAIOR VALOR REGISTRADO: R$", dados["maior_preco"])
+        print("MENOR VALOR REGISTRADO: R$", dados["menor_preco"])
+        print("DIFERENCE DE PRECO NO TEMPO: ", dados["diferenca_precos"], "%")
 
     def pega_modo_ordenacao(self, atributo_ordenacao):
-
         if atributo_ordenacao == "preco":
             print("--- SELECIONE O TIPO DE ORDENACAO ---")
             print("[1] - MAIOR PRECO")
@@ -64,23 +68,24 @@ class TelaProduto(TelaAbstrata):
         modo_ordenacao = input("Insira o modo de ordencao: ")
         return opcoes[modo_ordenacao]
 
-    def busca_produto(self):
-        opcoes = {"1": "preco", "2": "numero_confirmacoes", "3": "data_postagem"}
+    def menu_busca(self):
         dados_busca = {}
-        print("--- BUSCAS DE PRODUTO ---")
+        filtros = {}
+        print("--- FILTROS DE BUSCA ---")
         nome_produto = input("Nome do produto:")
-        qualificadores = input("Qualificadores (ou deixe em branco): ")
-        dados_busca["nome_produto"] = nome_produto
-        dados_busca["qualificadores"] = qualificadores
+        qualificadores = input("Qualificadores: ")
+        filtros["nome_produto"] = nome_produto
+        filtros["qualificadores"] = qualificadores
         print("--- SELECIONE UM FILTRO DE BUSCA ---")
         print("[1] - PRECO")
         print("[2] - NUMERO DE CONFIRMACOES")
         print("[3] - DATA DE POSTAGEM")
         filtro_busca = input("Filtro de busca: ")
+        opcoes = {"1": "preco", "2": "numero_confirmacoes", "3": "data_postagem"}
         modo_ordenacao = self.pega_modo_ordenacao(opcoes[filtro_busca])
-        # import pdb; pdb.set_trace()
         dados_busca["atributo_ordenacao"] = opcoes[filtro_busca]
         dados_busca["modo_ordenacao"] = modo_ordenacao
+        dados_busca["filtros"] = filtros
         return dados_busca
 
     def cadastra_qualificador(self):
@@ -102,10 +107,31 @@ class TelaProduto(TelaAbstrata):
 
     def mostra_dado_produto(self, dados):
         print("======================================================")
-        print("NOME & QUALIFICADORES | MERCADO | PRECO")
-        print(
-            f'{dados["nome"]} {dados["qualificadores"]} | {dados["mercado"]} | R$ {dados["preco"]}'
-        )
+        print("ID: ", dados["id"])
+        print("NOME: ", dados["nome"])
+        print("DESCRICAO: ", dados["descricao"])
+        print("CATEGORIA: ", dados["categoria"])
+        print("DATA DE POSTAGEM: ", dados["data_postagem"])
+        print("QUALIFICADORES: ", dados["qualificadores"])
+
+        for p in dados["precos"]:
+            print("PRECO: R$", str(p.valor), "| CONTADOR: ", p.contador)
+
+    def pega_inteiro(self, max, min, msg):
+        while True:
+            inteiro = input(msg)
+            try:
+                int(inteiro)
+                if not inteiro >= min and not inteiro <= max:
+                    print("Insira um valor valido!")
+                    continue
+            except:
+                print("Insira um valor inteiro!")
+                continue
+            return inteiro
+
+    def pega_nome_produto(self):
+        return input("Insira o nome do produto: ")
 
     def mostra_mensagem(self, mensagem):
         print(mensagem)

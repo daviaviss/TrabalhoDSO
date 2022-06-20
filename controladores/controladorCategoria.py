@@ -31,13 +31,13 @@ class ControladorCategoria:
     def lista_categorias(self):
         for c in self.categorias:
             self.tela_categoria.mostra_categoria(c)
-            
+
     def busca_categoria(self, nome):
         for c in self.categorias:
             if c.nome == nome:
                 return c
         return False
-    
-    def pega_categoria(self):
+
+    def pega_categoria(self) -> Categoria:
         opcao = self.tela_categoria.mostra_categorias()
         return self.busca_categoria(CATEGORIAS[opcao])

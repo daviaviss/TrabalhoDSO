@@ -8,11 +8,6 @@ class TelaMercado(TelaAbstrata):
         cnpj = input("CNPJ do mercado: ")
         return cnpj
 
-    def valida_cep(self, cep):
-        cep = cep.replace("-", "")
-        if len(cep) == 8:
-            return True
-
         return False
 
     def valida_inteiro(self, inteiro):
@@ -27,7 +22,14 @@ class TelaMercado(TelaAbstrata):
         print("--- MENU MERCADO ---")
         print("[1] - LISTAR MERCADOS")
         print("[0] - VOLTAR")
-        return self.le_numero_inteiro("Insira uma das opcoes acima: ", [0, 1])
+        print("[5] - LISTAR PRODUTOS MERCADO")
+        print("[6] - EDITAR ENDERECO DE UM MERCADO")
+        print("[7] - EDITAR NOME DE UM MERCADO")
+        print("[8] - EXCLUIR PRODUTO DE UM MERCADO")
+        print("[9] - GERAR RELATORIO MERCADO")
+        return self.le_numero_inteiro(
+            "Insira uma das opcoes acima: ", [0, 1, 5, 6, 7, 8, 9]
+        )
 
     def menu_mercado_pessoa_juridica(self):
         print("--- MENU MERCADO ---")
@@ -35,8 +37,15 @@ class TelaMercado(TelaAbstrata):
         print("[2] - CADASTRAR MERCADO")
         print("[3] - EDITAR MERCADO")
         print("[4] - EXCLUIR MERCADO")
+        print("[5] - LISTAR PRODUTOS MERCADO")
+        print("[6] - EDITAR ENDERECO DE UM MERCADO")
+        print("[7] - EDITAR NOME DE UM MERCADO")
+        print("[8] - EXCLUIR PRODUTO DE UM MERCADO")
+        print("[9] - GERAR RELATORIO MERCADO")
         print("[0] - VOLTAR")
-        return self.le_numero_inteiro("Insira uma das opcoes acima: ", [0, 1, 2, 3, 4])
+        return self.le_numero_inteiro(
+            "Insira uma das opcoes acima: ", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        )
 
     def valida_cnpj(self, cnpj):
         obj = CNPJ()
@@ -70,12 +79,11 @@ class TelaMercado(TelaAbstrata):
             return {"nome": nome, "cep": cep, "numero": numero, "cnpj": cnpj_mercado}
 
     def mostra_dados_mercado(self, mercado: Mercado):
-        print("=========================================")
-        print("Nome do mercado: ", mercado.nome)
-        print("CEP do mercado: ", mercado.endereco.cep)
-        print("Numero do mercado: ", mercado.endereco.numero)
-        print("CNPJ do mercado: ", mercado.cnpj)
-        print("Proprietario: ", mercado.proprietario.nome)
+        print("------------------------------------------")
+        print("NOME: ", mercado.nome)
+        print("CNPJ: ", mercado.cnpj)
+        print("PROPRIETARIO: ", mercado.proprietario.nome)
+        print("CEP: ", mercado.endereco.cep)
 
     def seleciona_mercado(self):
         while True:

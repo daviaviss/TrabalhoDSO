@@ -22,6 +22,10 @@ class Mercado:
     def endereco(self):
         return self.__endereco
 
+    @endereco.setter
+    def endereco(self, endereco):
+        self.__endereco = endereco
+
     @property
     def proprietario(self):
         return self.__proprietario
