@@ -1,13 +1,13 @@
 from entidades.preco import Preco
 from entidades.produto import Produto
-from telas import telaPreco
+from telas import tela_preco
 
 
 class ControladorPreco:
     def __init__(self, controlador_sitema):
         self.__controlador_sistema = controlador_sitema
         self.__precos = []
-        self.__tela_preco = telaPreco.TelaPreco()
+        self.__tela_preco = tela_preco.TelaPreco()
 
     @property
     def tela_preco(self):

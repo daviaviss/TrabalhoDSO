@@ -1,4 +1,4 @@
-from telas.telaQualificador import TelaQualificador
+from telas.tela_qualificador import TelaQualificador
 
 
 class ControladorQualificador:

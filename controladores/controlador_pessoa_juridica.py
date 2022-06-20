@@ -1,6 +1,6 @@
 from controladores.controlador_pessoa_abstrato import ControladorPessoaAbstrato
-from entidades.pessoaJuridica import PessoaJuridica
-from telas.telaPessoaJuridica import TelaPessoaJuridica
+from entidades.pessoa_juridica import PessoaJuridica
+from telas.tela_pessoa_juridica import TelaPessoaJuridica
 
 
 class ControladorPessoaJuridica(ControladorPessoaAbstrato):

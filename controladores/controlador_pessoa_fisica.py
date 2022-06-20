@@ -1,6 +1,6 @@
 from click import edit
-from telas.telaPessoaFisica import TelaPessoaFisica
-from entidades.pessoaFisica import PessoaFisica
+from telas.tela_pessoa_fisica import TelaPessoaFisica
+from entidades.pessoa_fisica import PessoaFisica
 
 
 class ControladorPessoaFisica:

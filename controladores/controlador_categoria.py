@@ -1,5 +1,5 @@
 from entidades.categoria import Categoria
-from telas.telaCategoria import TelaCategoria
+from telas.tela_categoria import TelaCategoria
 
 CATEGORIAS = [
     "carne",

@@ -1,6 +1,6 @@
 from entidades.endereco import Endereco
 from entidades.mercado import Mercado
-from telas.telaMercado import TelaMercado
+from telas.tela_mercado import TelaMercado
 
 
 class ControladorMercado:

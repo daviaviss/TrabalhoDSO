@@ -1,10 +1,10 @@
-from telas import telaEndereco
+from telas import tela_endereco
 
 
 class ControladorEndereco:
     def __init__(self, controlador_cessao):
         self.__controlador_cessao = controlador_cessao
-        self.__tela_endereco = telaEndereco.TelaEndereco()
+        self.__tela_endereco = tela_endereco.TelaEndereco()
 
     @property
     def controlador_cessao(self):

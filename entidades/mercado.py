@@ -1,5 +1,5 @@
 from entidades.endereco import Endereco
-from entidades.pessoaJuridica import PessoaJuridica
+from entidades.pessoa_juridica import PessoaJuridica
 
 
 class Mercado:

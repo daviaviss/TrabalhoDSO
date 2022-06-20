@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from telas.telaPessoaFisica import TelaPessoaFisica
+from telas.tela_pessoa_fisica import TelaPessoaFisica
 from telas.tela_pessoa_abstrata import TelaPessoaAbstrata
 
 

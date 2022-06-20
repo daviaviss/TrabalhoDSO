@@ -1,37 +1,37 @@
 from controladores import (
-    controladorProduto,
-    controladorPreco,
-    controladorMercado,
+    controlador_categoria,
+    controlador_endereco,
+    controlador_mercado,
+    controlador_pessoa_fisica,
+    controlador_pessoa_juridica,
+    controlador_preco,
+    controlador_produto,
     controlador_menu_principal,
-    controladorEndereco,
-    controladorCategoria,
-    controladorPessoaFisica,
-    controladorPessoaJuridica,
-    controladorQualificador,
+    controlador_qualificador,
 )
-from entidades.pessoaFisica import PessoaFisica
-from entidades.pessoaJuridica import PessoaJuridica
+from entidades.pessoa_fisica import PessoaFisica
+from entidades.pessoa_juridica import PessoaJuridica
 from telas.tela_cessao import TelaCessao
 
 
 class ControladorCessao:
     def __init__(self):
-        self.__controlador_produto = controladorProduto.ControladorProduto(self)
+        self.__controlador_produto = controlador_produto.ControladorProduto(self)
         self.__controlador_qualificador = (
-            controladorQualificador.ControladorQualificador(self)
+            controlador_qualificador.ControladorQualificador(self)
         )
-        self.__controlador_preco = controladorPreco.ControladorPreco(self)
-        self.__controlador_mercado = controladorMercado.ControladorMercado(self)
+        self.__controlador_preco = controlador_preco.ControladorPreco(self)
+        self.__controlador_mercado = controlador_mercado.ControladorMercado(self)
         self.__controlador_menu_principal = (
             controlador_menu_principal.ControladorMenuPrincipal(self)
         )
-        self.__controlador_endereco = controladorEndereco.ControladorEndereco(self)
-        self.__controlador_categoria = controladorCategoria.ControladorCategoria(self)
+        self.__controlador_endereco = controlador_endereco.ControladorEndereco(self)
+        self.__controlador_categoria = controlador_categoria.ControladorCategoria(self)
         self.__controlador_pessoa_fisica = (
-            controladorPessoaFisica.ControladorPessoaFisica(self)
+            controlador_pessoa_fisica.ControladorPessoaFisica(self)
         )
         self.__controlador_pessoa_juridica = (
-            controladorPessoaJuridica.ControladorPessoaJuridica(self)
+            controlador_pessoa_juridica.ControladorPessoaJuridica(self)
         )
         self.__tela_cessao = TelaCessao()
         self.__usuario_atual = None
