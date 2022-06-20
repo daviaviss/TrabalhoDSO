@@ -1,5 +1,4 @@
 from telas.tela_abstrata import TelaAbstrata
-from validate_docbr import CPF, CNPJ
 
 
 class TelaSessao(TelaAbstrata):

@@ -1,5 +1,4 @@
 from telas.tela_abstrata import TelaAbstrata
-from email_validator import validate_email
 
 
 class TelaPessoaAbstrata(TelaAbstrata):
@@ -15,11 +14,3 @@ class TelaPessoaAbstrata(TelaAbstrata):
         nome = input("Nome: ")
         email = input("Email: ")
         return {"nome": nome, "email": email}
-        
-
-    def valida_email(self, email):
-        try:
-            validate_email(email)
-        except Exception:
-            return False
-        return True

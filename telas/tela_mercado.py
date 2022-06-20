@@ -1,6 +1,5 @@
 from entidades.mercado import Mercado
 from telas.tela_abstrata import TelaAbstrata
-from validate_docbr import CNPJ
 
 
 class TelaMercado(TelaAbstrata):
@@ -47,9 +46,7 @@ class TelaMercado(TelaAbstrata):
             "Insira uma das opcoes acima: ", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
         )
 
-    def valida_cnpj(self, cnpj):
-        obj = CNPJ()
-        return obj.validate(cnpj)
+
 
     def pega_dados_mercado(self, cnpj=True, permitir_vazio=False):
         while True:
@@ -72,9 +69,6 @@ class TelaMercado(TelaAbstrata):
                     continue
             if cnpj:
                 cnpj_mercado = input("CNPJ do mercado: ")
-                if not self.valida_cnpj(cnpj_mercado):
-                    print("CNPJ invalido! Tente novamente.")
-                    continue
 
             return {"nome": nome, "cep": cep, "numero": numero, "cnpj": cnpj_mercado}
 
@@ -88,7 +82,4 @@ class TelaMercado(TelaAbstrata):
     def seleciona_mercado(self):
         while True:
             cnpj = input("CNPJ do mercado: ")
-            if not self.valida_cnpj(cnpj):
-                print("CNPJ invalido, tente novamente!")
-                continue
             return cnpj
