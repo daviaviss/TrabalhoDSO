@@ -2,6 +2,9 @@ import PySimpleGUI as sg
 from telas.tela_abstrata import TelaAbstrata
 
 class TelaCategoria(TelaAbstrata):
+    def __init__(self):
+        self.__window = None
+
     CATEGORIAS = [
         "carne",
         "higiene",
@@ -18,14 +21,14 @@ class TelaCategoria(TelaAbstrata):
         sg.theme('SandyBeach') 
         layout = [
             [sg.Text('Digite o nome da categoria')],
-            [sg.Text('Nome da categoria', size =(15, 1)), sg.InputText()],
-            [sg.Enviar(), sg.Cancelar()]
+            [sg.Text('Nome da categoria', size =(15, 1)), sg.InputText(key='nome')],
+            [sg.Submit(), sg.Cancel()]
         ]
 
         window = sg.Window('Categoria', layout)
-        nome = window.read()
+        event, values = self.__window.read()
         window.close()
-        return nome
+        return values['nome']
 
     def mostra_categorias(self):
         sg.theme('SandyBeach')

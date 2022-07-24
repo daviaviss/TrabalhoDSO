@@ -1,7 +1,3 @@
-from cgitb import text
-from multiprocessing import _JoinableQueueType
-from typing import Text
-from webbrowser import WindowsDefault
 from telas.tela_abstrata import TelaAbstrata
 import PySimpleGUI as sg
 
