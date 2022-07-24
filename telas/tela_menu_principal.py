@@ -1,13 +1,16 @@
 from telas.tela_abstrata import TelaAbstrata
+import PySimpleGUI as sg
 
 class TelaMenuPrincipal(TelaAbstrata):
     
     def abre_menu_principal(self):
-        print("--- MENU PRINCIPAL ---")
-        print("[1] - OPCOES USUARIO")
-        print("[2] - OPCOES MERCADO")
-        print("[3] - OPCOES PRODUTOS")
-        print("[0] - DESLOGAR")
-        
-        opcao = self.le_numero_inteiro("Selecione uma das opcoes acima: ", [0, 1, 2, 3])
-        return opcao
+        layout = [          
+                [sg.Button("Opções Usuário", key=1)],
+                [sg.Button("Opções Mercado", key=2)],
+                [sg.Button("Opções Produtos", key=3)],
+                [sg.Button("Deslogar", key=0)]
+                ]  
+        self.__window = sg.Window('Menu Principal', layout=layout)
+
+        event, values = self.__window.read()
+        return event

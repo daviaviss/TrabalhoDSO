@@ -22,7 +22,7 @@ class TelaCategoria(TelaAbstrata):
         layout = [
             [sg.Text('Digite o nome da categoria')],
             [sg.Text('Nome da categoria', size =(15, 1)), sg.InputText(key='nome')],
-            [sg.Submit(), sg.Cancel()]
+            [sg.Submit('Enviar'), sg.Cancel('Cancelar')]
         ]
 
         window = sg.Window('Categoria', layout)
