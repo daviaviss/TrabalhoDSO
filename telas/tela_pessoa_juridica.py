@@ -1,29 +1,35 @@
 from telas.tela_abstrata import TelaAbstrata
 from telas.tela_pessoa_abstrata import TelaPessoaAbstrata
-from validate_docbr import CNPJ
-
+import PySimpleGUI as sg
+from PySimpleGUI import Table
 class TelaPessoaJuridica(TelaPessoaAbstrata, TelaAbstrata):
-    def valida_cnpj(self, cnpj):
-        obj = CNPJ()
-        return obj.validate(cnpj)
+    def __init__(self):
+        self.__window = None
+
     def pega_dados_pessoa_juridica(self):
+        layout = [[sg.Text('Cadastro Pessoa Juridica')],           
+                    [sg.Text("Nome"), sg.Input(key="nome")],
+                    [sg.Text("Email"), sg.Input(key="email")],
+                    [sg.Text("CNPJ",), sg.Input(key="cnpj")],
+                    [sg.Button("Cadastrar", key="cadastrar")]
+                    ]
+        self.__window = sg.Window('Menu Principal', layout)
         while True:
-            nome = input("Nome: ")
-            email = input("Email: ")
-            if not self.valida_email(email):
-                self.mostra_mensagem("Email invalido")
-                continue
-
-            cnpj = input("CNPJ: ")
-            if not self.valida_cnpj(cnpj):
-                self.mostra_mensagem("CNPJ invalido!")
-                continue
-
-            break
-        return {"email": email, "cnpj": cnpj, "nome": nome}
+            event, values = self.__window.read()
+            if event == "cadastrar":
+                self.__window.close()
+                break
+        return {"email": values["nome"], "cnpj": values["cnpj"], "nome": values["nome"]}
 
     def mostra_dado_usuario_juridico(self, p):
-        print("Nome: ", p.nome)
-        print("Email: ", p.email)
-        print("CNPJ: ", p.cnpj)
-        print("================================")
+        h = ["Nome", "Email", "CNPJ"]
+        l = [
+            [sg.Table(values=p, headings=h, auto_size_columns=True)],
+            [sg.Button(button_text="Fechar")]
+        ]
+        self.__window = sg.Window("Dados Usuario Juridico", l)
+        event, values = self.__window.read()
+        while True:
+            if event == "Fechar":
+                self.__window.close()
+                break

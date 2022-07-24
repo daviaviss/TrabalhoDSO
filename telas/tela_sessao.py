@@ -1,19 +1,31 @@
 from telas.tela_abstrata import TelaAbstrata
-from validate_docbr import CPF, CNPJ
-
-
+import PySimpleGUI as sg
 class TelaSessao(TelaAbstrata):
+    def __init__(self):
+        self.__window = None
+
     def mostra_menu_principal(self):
-        print("--- MENU PRINCIPAL ---")
-        print("[1] - ENTRAR")
-        print("[2] - CADASTRAR USUARIO FISICO")
-        print("[3] - CADASTRAR USUARIO JURIDICO")
-        print("[4] - LISTAS USUARIOS")
-        print("[0] - ENCERRAR PROGRAMA")
-        msg = "Insira uma das opcoes acima: "
-        opcao = self.le_numero_inteiro(msg, [1, 2, 3, 4, 0])
+        
+        # sg.popup('popup')
+
+        layout = [          
+                 [sg.Button("Entrar", key=1)],
+                 [sg.Button("Cadastrar Usuario Fisico", key=2)],
+                 [sg.Button("Cadastrar Usuario Juridico", key=3)],
+                 [sg.Button("Listar Usuarios", key=4)],
+                 [sg.Button("Ecerrar Programa", key=0)]
+                 ]  
+        self.__window = sg.Window('Menu Principal', layout=layout)
+
+        opcao = self.le_numero_inteiro("", [1, 2, 3, 4, 0], self.__window)
         return opcao
 
     def pega_email(self):
-        email = input("Email: ")
-        return email
+        l = [
+            [sg.Text("Email"), sg.Input(key="email")]
+        ]
+        self.__window = sg.Window("Email", layout=l)
+        event, values = self.__window.read()
+        self.__window.close()
+        # email = input("Email: ")
+        return values["email"]
