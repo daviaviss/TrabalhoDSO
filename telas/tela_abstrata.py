@@ -1,28 +1,21 @@
 from abc import ABC
-
+import PySimpleGUI as sg
 
 class TelaAbstrata(ABC):
     def mostra_tela_confirmacao(self):
-        print("== TEM CERTEZA QUE DESEJA REALIZAR ESSA ACAO? ==")
-        print("[0] - SIM")
-        print("[1] - NAO")
-        opcao = self.le_numero_inteiro("Escolhe uma das opcoes acima: ", [0, 1])
+        layout = [          
+            [sg.Text("Tem certeza que deseja realizar essa ação?")],
+            [sg.Button("Sim", key=0)],
+            [sg.Button("Não", key=1)],
+            ]  
+        self.__window = sg.Window('Confirmação', layout=layout)
+
+        event, values = self.__window.read()
+        return event
 
     def mostra_mensagem(self, msg):
         print(msg)
-
-    def le_numero_inteiro(self, msg, inteiros_validos):
-        while True:
-            opcao = input(msg)
-            try:
-                opcao = int(opcao)
-                if not opcao in inteiros_validos:
-                    self.mostra_mensagem("Selecione um dos valores acima!")
-                    continue
-            except ValueError:
-                self.mostra_mensagem("Insira um valor inteiro!")
-                continue
-            return opcao
+        #sg.popup_error_with_traceback(msg)
 
     def verifica_tipo_dados(self, dados, tipo):
         tipos_dados = {"int": int, "float": float, "dict": dict, "list": list}
@@ -35,10 +28,15 @@ class TelaAbstrata(ABC):
         return True
 
     def mostra_pergunta(self):
-        print("== DESEJA CONTINUAR? ==")
-        print("[0] - SIM")
-        print("[1] - NAO")
-        return self.le_numero_inteiro("Selecione uma das alternativas: ", [0, 1])
+        layout = [          
+                [sg.Text("Deseja continuar?")],
+                [sg.Button("Sim", key=0)],
+                [sg.Button("Não", key=1)],
+                ]  
+        self.__window = sg.Window('Pergunta', layout=layout)
+
+        event, values = self.__window.read()
+        return event
 
     def verifica_dados(self, dados):
         if all(dados):

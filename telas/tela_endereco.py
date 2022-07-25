@@ -1,5 +1,5 @@
 from telas.tela_abstrata import TelaAbstrata
-
+import PySimpleGUI as sg
 
 class TelaEndereco(TelaAbstrata):
     def valida_cep(self, cep):
@@ -15,14 +15,19 @@ class TelaEndereco(TelaAbstrata):
         return True
 
     def pega_dados_endereco(self):
-        while True:
-            cep = input("Insira o CEP: ")
-            if not self.valida_cep(cep):
-                print("CEP invalido!")
-                continue
 
-            numero = input("Insira o numero: ")
-            if not self.valida_numero(numero):
-                print("Numero invalido!")
+        layout = [
+            [sg.Text("CEP"), sg.Input(key="cep")],
+            [sg.Text("Numero"), sg.Input(key="numero")],
+        ]
+        self.__window = sg.Window(title="Endereço", layout=layout)
+        while True:
+            event, values = self.__window.read()
+            dados = []
+            dados.append(values["cep"])
+            dados.append(values["numero"])
+            if not self.valida_cep(dados[0]) and self.valida_numero(dados[1]):
+                print("Dados invalidos!")
                 continue
-            return {"cep": cep, "numero": numero}
+            self.__window.close()
+            return {"cep": values["cep"], "numero": values["numero"]}
