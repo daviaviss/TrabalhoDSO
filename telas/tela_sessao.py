@@ -21,12 +21,11 @@ class TelaSessao(TelaAbstrata):
         return event
 
     def pega_email(self):
-        l = [
+        layout = [
             [sg.Text('Email'), sg.InputText(key='email')],
             [sg.Submit('Enviar'), sg.Cancel('Cancelar')]
         ]
-        self.__window = sg.Window("Email", layout=l)
+        self.__window = sg.Window("Email", layout=layout)
         event, values = self.__window.read()
         self.__window.close()
-        # email = input("Email: ")
         return values["email"]

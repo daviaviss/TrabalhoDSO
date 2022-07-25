@@ -11,7 +11,7 @@ class TelaPessoaFisica(TelaPessoaAbstrata, TelaAbstrata):
                     [sg.Text("Nome"), sg.Input(key="nome")],
                     [sg.Text("Email"), sg.Input(key="email")],
                     [sg.Text("CPF",), sg.Input(key="cpf")],
-                    [sg.Button("Cadastrar", key="cadastrar")]
+                    [sg.Button("Cadastrar", key="cadastrar"), sg.Cancel("Cancelar")]
                     ]
         self.__window = sg.Window('Menu Principal', layout)
         while True:
