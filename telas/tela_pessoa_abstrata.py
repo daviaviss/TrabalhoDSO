@@ -4,6 +4,8 @@ import PySimpleGUI as sg
 
 
 class TelaPessoaAbstrata(TelaAbstrata):
+    def __init__(self):
+        self.__window = None
     
     def menu_usuario(self):
         layout = [          

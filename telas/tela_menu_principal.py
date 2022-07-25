@@ -2,6 +2,8 @@ from telas.tela_abstrata import TelaAbstrata
 import PySimpleGUI as sg
 
 class TelaMenuPrincipal(TelaAbstrata):
+    def __init__(self):
+        self.__window = None
     
     def abre_menu_principal(self):
         layout = [          

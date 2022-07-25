@@ -14,8 +14,7 @@ class TelaAbstrata(ABC):
         return event
 
     def mostra_mensagem(self, msg):
-        print(msg)
-        #sg.popup_error_with_traceback(msg)
+        sg.Popup(msg)
 
     def verifica_tipo_dados(self, dados, tipo):
         tipos_dados = {"int": int, "float": float, "dict": dict, "list": list}

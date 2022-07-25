@@ -2,6 +2,9 @@ from telas.tela_abstrata import TelaAbstrata
 import PySimpleGUI as sg
 
 class TelaEndereco(TelaAbstrata):
+    def __init__(self):
+        self.__window = None
+
     def valida_cep(self, cep):
         cep = cep.replace("-", "")
         if len(cep) == 8:
