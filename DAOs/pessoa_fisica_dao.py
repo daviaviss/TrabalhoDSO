@@ -21,5 +21,4 @@ class PessoaFisicaDAO(DAO):
             return super().get(key)
 
     def remove(self, key:int):
-        if(isinstance(key, int)):
-            return super().remove(key)
+        return super().remove(key)

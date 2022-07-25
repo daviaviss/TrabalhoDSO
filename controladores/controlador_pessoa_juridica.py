@@ -56,8 +56,11 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
             break
 
     def lista_pessoas_juridicas(self):
-        for p in self.pessoas_juridicas:
-            self.tela_pessoa_juridica.mostra_dado_usuario_juridico(p)
+        pessoas_juridicas = self.pj_DAO.get_all()
+        dados = []
+        for p in pessoas_juridicas:
+            dados.append(p.nome, p.email, p.cnpj)
+        self.tela_pessoa_juridica.mostra_dado_usuario_juridico(dados)
 
     def edita_usuario_juridico(self):
         dados = self.tela_pessoa_juridica.pega_nome_email_usuario()

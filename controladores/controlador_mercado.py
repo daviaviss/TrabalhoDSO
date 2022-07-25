@@ -1,3 +1,4 @@
+from DAOs.dao_mercado import MercadoDAO
 from entidades.endereco import Endereco
 from entidades.mercado import Mercado
 from telas.tela_mercado import TelaMercado
@@ -9,6 +10,11 @@ class ControladorMercado:
         self.__mercados = []
         self.__mercados = []
         self.__tela_mercado = TelaMercado()
+        self.__mercado_DAO = MercadoDAO()
+
+    @property
+    def mercado_DAO(self):
+        return self.__mercado_DAO
 
     @property
     def mercados(self):
@@ -81,8 +87,12 @@ class ControladorMercado:
             return
 
     def pega_mercado_por_cnpj(self):
+        mercados = self.mercado_DAO.get_all()
+        dados = {}
+        for m in mercados:
+            dados[m.cnpj] = m.nome + " - " + m.cnpj
         while True:
-            cnpj = self.tela_mercado.seleciona_mercado()
+            cnpj = self.tela_mercado.seleciona_mercado(dados)
             for index, mercado in enumerate(self.mercados):
                 if mercado.cnpj == cnpj:
                     return {"mercado": mercado, "index": index}
@@ -162,6 +172,10 @@ class ControladorMercado:
             self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ!")
 
     def lista_produtos_mercado(self):
+        mercados = self.mercado_DAO.get_all()
+        if not mercados:
+            self.tela_mercado.mostra_mensagem("Nao existem mercados!")
+            return None
         mercado = self.pega_mercado_por_cnpj()
         if mercado:
             self.controlador_sessao.controlador_produto.lista_produtos(

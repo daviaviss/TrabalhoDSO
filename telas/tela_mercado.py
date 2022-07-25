@@ -39,7 +39,7 @@ class TelaMercado(TelaAbstrata):
         self.__window = sg.Window('Menu Mercado', layout=layout)
 
         event, values = self.__window.read()
-        self.__window.close
+        self.__window.close()
         return event
 
     def menu_mercado_pessoa_juridica(self):
@@ -66,6 +66,26 @@ class TelaMercado(TelaAbstrata):
         return obj.validate(cnpj)
 
     def pega_dados_mercado(self, cnpj=True, permitir_vazio=False):
+        l = [
+            [sg.Text("Nome do mercado"), sg.Input(key="nome")],
+            [sg.Text("CEP do mercado"), sg.Input(key="cep")],
+            [sg.Text("Numero do endereço do mercado"), sg.Input(key="numero")],
+            [sg.Text("CNPJ do mercado"), sg.Input(key="cnpj")]
+            [sg.Button("Cadastrar", key="cadastrar")],
+        ]
+        self.__window = sg.Window("Cadastar Mercado", l)
+        while True:
+            event, values = self.__window.read()
+            if event == "cadastrar":
+                if not all(
+                    [bool(v) for k, v in values.items()]
+                ):
+                    self.mostra_mensagem("Nenhum campo pode ficar em branco!")
+                    continue
+                else:
+                    return values
+            else:
+                return event
         while True:
             cnpj_mercado = ""
             dados = {}
@@ -99,7 +119,18 @@ class TelaMercado(TelaAbstrata):
         print("PROPRIETARIO: ", mercado.proprietario.nome)
         print("CEP: ", mercado.endereco.cep)
 
-    def seleciona_mercado(self):
+    def seleciona_mercado(self, dados):
+        l = []
+        for id, dado in dados.items():
+            l.append(
+                [sg.Checkbox(text=dado, key=id)]
+            )
+        l.append([sg.Button("Selecionar Mercado", key="selecionado")])
+        self.__window = sg.Window("Selecionar Mercado", l)
+        event, values = self.__window.read()
+        import pdb;pdb.set_trace()
+        if event == "selecionado":
+            return 
         while True:
             cnpj = input("CNPJ do mercado: ")
             if not self.valida_cnpj(cnpj):

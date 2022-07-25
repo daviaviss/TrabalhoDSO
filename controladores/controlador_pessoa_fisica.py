@@ -39,7 +39,6 @@ class ControladorPessoaFisica:
         return False
 
     def verifica_pessoa_fisica_existente(self, email, cpf):
-        import pdb;pdb.set_trace()
         pessoas_fisicas = self.pf_DAO.get_all()
         for p in pessoas_fisicas:
             if p.cpf == cpf or p.email == email:
@@ -91,7 +90,7 @@ class ControladorPessoaFisica:
     def exclui_usuario(self):
         opcao = self.tela_pessoa_fisica.mostra_tela_confirmacao()
         if opcao == 0:
-            self.pf_DAO.remove(self.controlador_sessao.usuario_atual)
+            self.pf_DAO.remove(self.controlador_sessao.usuario_atual.cpf)
             self.controlador_sessao.abre_menu()
         return None
 

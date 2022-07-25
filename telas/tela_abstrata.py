@@ -10,9 +10,6 @@ class TelaAbstrata(ABC):
             [sg.Text("TEM CERTEZA QUE DESEJA REALIZAR ESSA ACAO")],
             [sg.Button("SIM", key=0), sg.Button("NAO", key=1)]
         ]
-        # print("== TEM CERTEZA QUE DESEJA REALIZAR ESSA ACAO? ==")
-        # print("[0] - SIM")
-        # print("[1] - NAO")
         self.__window = sg.Window("Tela Confirmacao", l)
         event, values = self.__window.read()
         if event != None:
