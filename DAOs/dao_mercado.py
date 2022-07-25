@@ -8,13 +8,13 @@ class MercadoDAO(DAO):
     def __init__(self):
         super().__init__('mercados.pkl')
 
-    def add(self, pessoa_juridca: Mercado):
-        if(pessoa_juridca is not None) and isinstance(pessoa_juridca, Mercado):
-            super().add(pessoa_juridca.cnpj, pessoa_juridca)
+    def add(self, mercado: Mercado):
+        if(mercado is not None) and isinstance(mercado, Mercado):
+            super().add(mercado.cnpj, mercado)
 
-    def update(self, pessoa_juridca: Mercado):
-        if((pessoa_juridca is not None) and isinstance(pessoa_juridca, Mercado)):
-            super().update(pessoa_juridca.cnpj, pessoa_juridca)
+    def update(self, mercado: Mercado):
+        if((mercado is not None) and isinstance(mercado, Mercado)):
+            super().update(mercado.cnpj, mercado)
 
     def get(self, key:int):
         return super().get(key)

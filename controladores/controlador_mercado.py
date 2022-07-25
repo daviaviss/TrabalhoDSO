@@ -18,7 +18,7 @@ class ControladorMercado:
 
     @property
     def mercados(self):
-        return self.__mercados
+        return self.mercado_DAO.get_all()
 
     @property
     def controlador_sessao(self):
@@ -57,50 +57,77 @@ class ControladorMercado:
             dados["cnpj"],
             self.controlador_sessao.usuario_atual,
         )
-        self.mercados.append(novo_mercado)
+        self.mercado_DAO.add(novo_mercado)
         self.tela_mercado.mostra_mensagem("Mercado criado com sucesso")
 
     def lista_mercados(self) -> None:
         if not self.mercados:
             self.tela_mercado.mostra_mensagem("Nao existe mercado para ser listado!")
             return
+        dados = []
         for mercado in self.mercados:
-            self.tela_mercado.mostra_dados_mercado(mercado)
+            dados.append(
+                [mercado.nome, mercado.cnpj, mercado.endereco.cep, mercado.proprietario.nome]
+            )
+        self.tela_mercado.mostra_dados_mercado(dados)
 
     def exclui_mercado(self):
-        mercado, index = self.pega_mercado_por_cnpj()
+        mercado = self.seleciona_mercado()
         if not mercado:
-            self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ")
             return
-        if mercado.proprietario == self.controlador_sessao.usuario_atual:
-            del self.mercados[index]
-            self.tela_mercado.mostra_mensagem("Mercado deletado com sucesso!")
-        else:
-            self.tela_mercado.mostra_mensagem(
-                "Voce nao pode deletar um mercado que voce nao eh o proprietario!"
-            )
+        self.mercado_DAO.remove(mercado.cnpj)
+        self.tela_mercado.mostra_mensagem("Mercado Removido com Sucesso!")
 
     def altera_cep_mercado(self):
         dados_mercado = self.pega_mercado_por_cnpj()
         if not dados_mercado:
             self.tela_mercado.mostra_mensagem("Um mercado com esse CNPJ nao existe!")
             return
+    
+    def pega_mercado(self, cnpj):
+        for m in self.mercados:
+            if m.cnpj == cnpj:
+                return m
+        return False
+    
+    def edita_mercado(self):
+        mercado = self.seleciona_mercado()
+        if not mercado:
+            return
+        dados = {
+            "nome": mercado.nome,
+            "cnpj": mercado.cnpj,
+            "cep": mercado.endereco.cep,
+            "numero": mercado.endereco.numero
+        }
+        dados = self.tela_mercado.edita_mercado(default_data=dados)
+        if not dados:
+            return
+        mercado.nome = dados["nome"]
+        mercado.endereco.cep = dados["cep"]
+        mercado.endereco.numero = dados["numero"]
+        self.mercado_DAO.update(mercado)
+        self.tela_mercado.mostra_mensagem("Mercado Editado com Sucesso!")
 
-    def pega_mercado_por_cnpj(self):
-        mercados = self.mercado_DAO.get_all()
+
+    def seleciona_mercado(self):
+        if not self.mercados:
+            self.tela_mercado.mostra_mensagem("Nao existem mercados!")
+            return False
         dados = {}
-        for m in mercados:
-            dados[m.cnpj] = m.nome + " - " + m.cnpj
-        while True:
-            cnpj = self.tela_mercado.seleciona_mercado(dados)
-            for index, mercado in enumerate(self.mercados):
-                if mercado.cnpj == cnpj:
-                    return {"mercado": mercado, "index": index}
-            self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ!")
-            opcao = self.tela_mercado.mostra_pergunta()
-            if opcao == 1:
-                return False
-            continue
+        for m in self.mercados:
+            if m.proprietario.cnpj == self.controlador_sessao.usuario_atual.cnpj:
+                dados[m.cnpj] = m.nome + " - " + m.cnpj
+
+        cnpj = self.tela_mercado.seleciona_mercado(dados)
+        if not cnpj:
+            return False
+        mercado = self.pega_mercado(cnpj)
+        if not mercado:
+            self.tela_mercado.mostra_mensagem("Mercado Nao Existe")
+            return 
+        return mercado
+
 
     def altera_mercado(self) -> None:
         dados_mercado = self.pega_mercado_por_cnpj()
@@ -149,50 +176,32 @@ class ControladorMercado:
             self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ!")
 
     def exlui_produto_mercado(self):
-        mercado = self.pega_mercado_por_cnpj()
-        if mercado:
-            id_produto = self.tela_mercado.pega_dado_generico("ID do produto: ")
-            produto = self.controlador_sessao.controlador_produto.pega_produto(
-                id_produto
-            )
-            if produto:
-                for index, p in enumerate(mercado["mercado"].produtos):
-                    if str(p.id) == id_produto:
-                        del mercado["mercado"].produtos[index]
-                        self.tela_mercado.mostra_mensagem(
-                            "Produto deletado com sucesso!"
-                        )
-                        return
-                self.tela_mercado.mostra_mensagem(
-                    "Nao existe um produto com esse id no mercado elecionado!"
-                )
-            else:
-                self.tela_mercado.mostra_mensagem("Nao existe um produto com esse ID!")
-        else:
-            self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ!")
+        mercado = self.seleciona_mercado()
+        if not mercado:
+            return
+        if not mercado.produtos:
+            self.tela_mercado.mostra_mensagem("Mercado nao contem produtos!")
+            return 
+        produto = self.controlador_sessao.controlador_produto.seleciona_produto(mercado.produtos)
+        self.controlador_sessao.controlador_produto.deleta_produto(produto)
 
     def lista_produtos_mercado(self):
-        mercados = self.mercado_DAO.get_all()
-        if not mercados:
-            self.tela_mercado.mostra_mensagem("Nao existem mercados!")
-            return None
-        mercado = self.pega_mercado_por_cnpj()
-        if mercado:
-            self.controlador_sessao.controlador_produto.lista_produtos(
-                mercado["mercado"].produtos, montar_dados=True
-            )
-        elif not mercado:
-            self.tela_mercado.mostra_mensagem("Nao existe um mercado com esse CNPJ!")
+        mercado = self.seleciona_mercado()
+        if not mercado:
             return
+        if not mercado.produtos:
+            self.tela_mercado.mostra_mensagem("Mercado Nao Contem Produtos!")
+            return
+        self.controlador_sessao.controlador_produtos.lista_produtos(mercado.produtos)
 
-        if not mercado["mercado"].produtos:
-            self.tela_mercado.mostra_mensagem("Esse mercado nao contem produtos!")
 
     def verifica_produto_mercado(self, produto):
         mercados = []
         for m in self.mercados:
             if m.proprietario == self.controlador_sessao.usuario_atual:
                 mercados.append(m)
+        if not mercados:
+            self.tela_mercado.mostra_mensagem("Voce nao tem mercados para editar")
         for mercado_usuario in mercados:
             for p in mercado_usuario.produtos:
                 if p == produto:
@@ -265,7 +274,7 @@ class ControladorMercado:
         opcoes = {
             1: self.lista_mercados,
             2: self.cadastra_mercado,
-            3: self.altera_mercado,
+            3: self.edita_mercado,
             4: self.exclui_mercado,
             5: self.lista_produtos_mercado,
             6: self.edita_endereco_mercado,

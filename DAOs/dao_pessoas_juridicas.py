@@ -17,9 +17,7 @@ class PessoaJuridicaDAO(DAO):
             super().update(pessoa_juridca.cnpj, pessoa_juridca)
 
     def get(self, key:int):
-        if isinstance(key, int):
             return super().get(key)
 
     def remove(self, key:int):
-        if(isinstance(key, int)):
             return super().remove(key)

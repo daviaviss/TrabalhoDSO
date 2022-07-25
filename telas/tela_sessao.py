@@ -27,3 +27,14 @@ class TelaSessao(TelaAbstrata):
         event, values = self.__window.read()
         self.__window.close()
         return values["email"]
+    
+    def lista_usuarios(self, dados):
+        h = ["NOME", "EMAIL", "IDENTIFICADOR", "TIPO"]
+        l = [
+            [sg.Table(dados, headings=h, auto_size_columns=True)],
+            [sg.Button("Voltar")]
+        ]
+        self.__window = sg.Window("Usuario Cadastrados", l)
+        event, values = self.__window.read()
+        if event:
+            self.__window.close()

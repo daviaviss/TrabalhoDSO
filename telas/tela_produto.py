@@ -25,6 +25,28 @@ class TelaProduto(TelaAbstrata):
         return self.le_numero_inteiro(
             "Escolha uma das opcoes acima: ", inteiros_validos, self.__window
         )
+    
+    def seleciona_produt(self, dados):
+        l = []
+        for id, dado in dados.items():
+            l.append(
+                [sg.Radio(text=dado, key=id, group_id="")]
+            )
+        l.append([sg.Button("Selecionar Produto", key="selecionado"), sg.Button("Voltar", key="voltar")])
+        self.__window = sg.Window("Selecionar Produto", l)
+        while True:
+            event, values = self.__window.read()
+            if event == "selecionado" and not values:
+                self.mostra_mensagem("Selecione um produto!") 
+                continue
+            elif event == "selecionado" and values:
+                for k, v in values.items():
+                    if v == True:
+                        self.__window.close()
+                        return k
+            elif event != "selecionado":
+                self.__window.close()
+                return False
 
     def pega_dados_produto(self):
         l = [

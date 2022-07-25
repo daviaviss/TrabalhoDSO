@@ -58,7 +58,7 @@ class TelaMercado(TelaAbstrata):
         self.__window = sg.Window('Menu Mercado', layout=layout)
 
         event, values = self.__window.read()
-        self.__window.close
+        self.__window.close()
         return event
 
     def valida_cnpj(self, cnpj):
@@ -70,7 +70,7 @@ class TelaMercado(TelaAbstrata):
             [sg.Text("Nome do mercado"), sg.Input(key="nome")],
             [sg.Text("CEP do mercado"), sg.Input(key="cep")],
             [sg.Text("Numero do endereço do mercado"), sg.Input(key="numero")],
-            [sg.Text("CNPJ do mercado"), sg.Input(key="cnpj")]
+            [sg.Text("CNPJ do mercado"), sg.Input(key="cnpj")],
             [sg.Button("Cadastrar", key="cadastrar")],
         ]
         self.__window = sg.Window("Cadastar Mercado", l)
@@ -83,58 +83,68 @@ class TelaMercado(TelaAbstrata):
                     self.mostra_mensagem("Nenhum campo pode ficar em branco!")
                     continue
                 else:
+                    self.__window.close()
                     return values
             else:
+                self.__window.close()
                 return event
-        while True:
-            cnpj_mercado = ""
-            dados = {}
-            print("---- DADOS DO MERCADO ----")
-            nome = input("Nome do mercado: ")
-            if not nome and not permitir_vazio:
-                print("Esse campo nao pode ficar em branco!")
-                continue
-            cep = input("CEP do mercado: ")
-            if not permitir_vazio and not cep:
-                if not self.valida_cep(cep):
-                    print("CEP invalido, tente novamente!")
-                    continue
-            numero = input("Numero do endereço do mercado: ")
-            if not numero and not permitir_vazio:
-                if not self.valida_inteiro(numero):
-                    print("Numero nao valido, tente novamente!")
-                    continue
-            if cnpj:
-                cnpj_mercado = input("CNPJ do mercado: ")
-                if not self.valida_cnpj(cnpj_mercado):
-                    print("CNPJ invalido! Tente novamente.")
-                    continue
 
-            return {"nome": nome, "cep": cep, "numero": numero, "cnpj": cnpj_mercado}
 
-    def mostra_dados_mercado(self, mercado: Mercado):
-        print("------------------------------------------")
-        print("NOME: ", mercado.nome)
-        print("CNPJ: ", mercado.cnpj)
-        print("PROPRIETARIO: ", mercado.proprietario.nome)
-        print("CEP: ", mercado.endereco.cep)
 
+    def mostra_dados_mercado(self, dados):
+        h = ["NOME", "CNPJ", "CEP", "PROPRIETARIO"]
+        l = [
+            [sg.Table(dados, headings=h, justification="center")],
+            [sg.Button("Voltar")]
+        ]
+        self.__window = sg.Window("Dados Mercados", l)
+        event, values = self.__window.read()
+        if event:
+            self.__window.close()
+            return
     def seleciona_mercado(self, dados):
-        l = []
+        l = [
+            [sg.Text("SELECIONE UM DOS MERCADOS ABAIXO")]
+        ]
         for id, dado in dados.items():
             l.append(
-                [sg.Checkbox(text=dado, key=id)]
+                [sg.Radio(text=dado, key=id, group_id="")]
             )
-        l.append([sg.Button("Selecionar Mercado", key="selecionado")])
+        l.append([sg.Button("Selecionar Mercado", key="selecionado"), sg.Button("Voltar", key="voltar")])
         self.__window = sg.Window("Selecionar Mercado", l)
-        event, values = self.__window.read()
-        import pdb;pdb.set_trace()
-        if event == "selecionado":
-            return 
         while True:
-            cnpj = input("CNPJ do mercado: ")
-            if not self.valida_cnpj(cnpj):
-                sg.Print('CPNJ invalido, tente novamente', do_not_reroute_stdout=False)
-                #print("CNPJ invalido, tente novamente!")
+            event, values = self.__window.read()
+            if event == "selecionado" and not values:
+                self.mostra_mensagem("Selecione um mercado!") 
                 continue
-            return cnpj
+            elif event == "selecionado" and values:
+                for k, v in values.items():
+                    if v == True:
+                        self.__window.close()
+                        return k
+            elif event != "selecionado":
+                self.__window.close()
+                return False
+
+    def edita_mercado(self, default_data):
+        layout = [[sg.Text('Edicao Mercado')],           
+                    [sg.Text("Nome"), sg.Input(key="nome", default_text=default_data["nome"])],
+                    [sg.Text("CNPJ"), sg.Input(key="cnpj", default_text=default_data["cnpj"], disabled=True, readonly=True)],
+                    [sg.Text("CEP",), sg.Input(key="cep", default_text=default_data["cep"])],
+                    [sg.Text("NUMERO"), sg.Input(key="numero", default_text=default_data["numero"])],
+                    [sg.Button("Editar", key="editar"), sg.Button("Cancelar")]
+                    ]
+        self.__window = sg.Window("Editar Usuario Fisica", layout=layout)
+        while True:
+            event, values = self.__window.read()
+            if event == "editar":
+                if any(
+                    [v == "" for k, v in values.items()]
+                ):
+                    self.mostra_mensagem("Nenhum Dado pode ficar em branco")
+                    continue
+                self.__window.close()
+                return {"nome": values["nome"], "cnpj": values["cnpj"], "cep": values["cep"], "numero": values["numero"]}
+            if event != "editar":
+                self.__window.close()
+                return False

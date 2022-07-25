@@ -1,3 +1,6 @@
+from cgi import print_directory
+from math import prod
+from DAOs.dao_produto import ProdutoDAO
 from entidades.categoria import Categoria
 from entidades.mercado import Mercado
 from entidades.pessoa_fisica import PessoaFisica
@@ -13,6 +16,11 @@ class ControladorProduto:
         self.__controlador_sessao = controlador_sessao
         self.__produtos = []
         self.__tela_produto = TelaProduto()
+        self.__produto_DAO = ProdutoDAO()
+
+    @property
+    def produto_DAO(self):
+        return self.__produto_DAO
 
     @property
     def produtos(self):
@@ -34,6 +42,10 @@ class ControladorProduto:
             if qualificador.titulo in dados_comparar["qualificadores"].split():
                 return True
         return False
+    
+    def deleta_produt(self, produto):
+        self.produto_DAO.remove(produto)
+        self.tela_produto.mostra_mensagem("Produto Deletado com Sucesso")
 
     def monta_dados(self, produto):
         dados = {
@@ -48,13 +60,22 @@ class ControladorProduto:
             "qualificadores": self.concatena_qualificadores(produto.qualificadores),
         }
         return dados
+    
+    def seleciona_produto(self, produtos):
+        dados = {}
+        for p in produtos:
+            dados[str(p.id)] = p.nome + " - " + p.descricao
+        id_produto = self.tela_produto.seleciona_produto(dados)
+        produto = self.pega_produto(id_produto)
+        return produto
 
-    def lista_produtos(self, dados, montar_dados=False):
-        for dado in dados:
-            if montar_dados:
-                dado = self.monta_dados(dado)
-
-            self.tela_produto.mostra_dado_produto(dado)
+    def lista_produtos(self, produtos, montar_dados=False):
+        dados = []
+        for p in produtos:
+            dados.append(
+                [p.nome, p.descricao, p.categoria]
+            )
+        self.tela_produto.mostra_dado_produto(dados)
 
     def filtra_produtos(self, filtros: dict):
         produtos_filtrados = []

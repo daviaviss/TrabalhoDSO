@@ -25,7 +25,7 @@ class ControladorPessoaFisica:
 
     @property
     def pessoas_fisicas(self):
-        return self.__pessoas_fisicas
+        return self.pf_DAO.get_all()
 
     @property
     def tela_pessoa_fisica(self):

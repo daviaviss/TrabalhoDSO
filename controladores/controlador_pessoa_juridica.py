@@ -1,3 +1,4 @@
+from DAOs.dao_pessoas_juridicas import PessoaJuridicaDAO
 from DAOs.pessoa_fisica_dao import PessoaFisicaDAO
 from controladores.controlador_pessoa_abstrato import ControladorPessoaAbstrato
 from entidades.pessoa_juridica import PessoaJuridica
@@ -9,7 +10,7 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
         self.__controlador_sessao = controlador_sessao
         self.__pessoas_juridicas = []
         self.__tela_pessoa_juridica = TelaPessoaJuridica()
-        self.__pj_DAO = PessoaFisicaDAO()
+        self.__pj_DAO = PessoaJuridicaDAO()
 
     @property
     def pj_DAO(self):
@@ -25,14 +26,15 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
 
     @property
     def pessoas_juridicas(self):
-        return self.__pessoas_juridicas
+        return self.pj_DAO.get_all()
 
     @property
     def tela_pessoa_juridica(self):
         return self.__tela_pessoa_juridica
 
     def verifica_pessoa_juridica_existente(self, email, cnpj):
-        for p in self.pessoas_juridicas:
+        pessoas_juridicas = self.pj_DAO.get_all()
+        for p in pessoas_juridicas:
             if p.cnpj == cnpj or p.email == email:
                 return True
         return False
@@ -45,15 +47,15 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
         return False
 
     def cadastra_pessoa_juridica(self):
-        while True:
-            dados = self.tela_pessoa_juridica.pega_dados_pessoa_juridica()
-            if self.verifica_pessoa_juridica_existente(dados["email"], dados["cnpj"]):
-                self.tela_pessoa_juridica.mostra_mensagem("Usuario ja cadastrado!")
-                continue
-            user = PessoaJuridica(dados["cnpj"], dados["nome"], dados["email"])
-            self.pessoas_juridicas.append(user)
-            self.tela_pessoa_juridica.mostra_mensagem("Usuario cadastrado com sucesso!")
-            break
+        dados = self.tela_pessoa_juridica.pega_dados_pessoa_juridica()
+        if not dados:
+            return None
+        if self.verifica_pessoa_juridica_existente(dados["email"], dados["cnpj"]):
+            self.tela_pessoa_juridica.mostra_mensagem("Usuario ja cadastrado!")
+            return None
+        user = PessoaJuridica(dados["cnpj"], dados["nome"], dados["email"])
+        self.pj_DAO.add(user)
+        self.tela_pessoa_juridica.mostra_mensagem("Usuario cadastrado com sucesso!")
 
     def lista_pessoas_juridicas(self):
         pessoas_juridicas = self.pj_DAO.get_all()
@@ -63,22 +65,30 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
         self.tela_pessoa_juridica.mostra_dado_usuario_juridico(dados)
 
     def edita_usuario_juridico(self):
-        dados = self.tela_pessoa_juridica.pega_nome_email_usuario()
         user = self.controlador_sessao.usuario_atual
-        if dados.get("nome"):
-            editado = True
-            user.nome = dados["nome"]
-        if dados.get("email"):
-            editado = True
-            user.email = dados["email"]
-        if not editado:
-            self.tela_pessoa_juridica.mostra_mensagem("Nenhum dado feio modificado!")
+        dados = {
+            "nome": user.nome,
+            "email": user.email,
+            "cnpj": user.cnpj
+        }
+        dados = self.tela_pessoa_juridica.edita_pessoa_juridica(dados)
+        if not isinstance(dados, dict):
+            return None
+        if dados["email"] != user.email:
+            if self.pega_pessoa_por_email(dados["email"]):
+                self.tela_pessoa_juridica.mostra_mensagem("Email ja Cadastrado!")
+                return None
+        user.email = dados["email"]
+        user.nome = dados["nome"]
+        self.pj_DAO.update(user)
         self.tela_pessoa_juridica.mostra_mensagem("Edicao feita com sucesso")
 
     def exclui_usuario(self):
         opcao = self.tela_pessoa_juridica.mostra_tela_confirmacao()
-        self.pessoas_juridicas.remove(self.controlador_sessao.usuario_atual)
-        self.controlador_sessao.abre_menu()
+        if opcao == 0:
+            self.pj_DAO.remove(self.controlador_sessao.usuario_atual.cnpj)
+            self.controlador_sessao.abre_menu()
+        return None
 
     def abre_tela(self):
         opcoes = {

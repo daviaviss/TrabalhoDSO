@@ -36,7 +36,6 @@ class ControladorSessao:
         )
         self.__tela_sessao = TelaSessao()
         self.__usuario_atual = None
-        self.__pessoas_DAO = PessoaDAO()
 
     @property
     def usuario_atual(self):
@@ -113,8 +112,14 @@ class ControladorSessao:
         self.controlador_pessoa_juridica.cadastra_pessoa_juridica()
 
     def lista_usuarios(self):
-        self.controlador_pessoa_fisica.lista_pesoas_fisicas()
-        self.controlador_pessoa_juridica.lista_pessoas_juridicas()
+        dados =[]
+        pessoas_j = self.controlador_pessoa_juridica.pessoas_juridicas
+        for pj in pessoas_j:
+            dados.append([pj.nome, pj.email, pj.cnpj, "Juridica"])
+        pessoas_f = self.controlador_pessoa_fisica.pessoas_fisicas
+        for pf in pessoas_f:
+            dados.append([pf.nome, pf.email, pf.cpf, "Fisica"])
+        self.tela_sessao.lista_usuarios(dados)
 
     def abre_menu(self):
         opcoes = {

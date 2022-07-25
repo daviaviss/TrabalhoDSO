@@ -40,10 +40,7 @@ class DAO(ABC):
     # esse método precisa chamar o self.__dump()
     def remove(self, key):
         try:
-            for k, v in self.__cache.items():
-                print(k, v)
             self.__cache.pop(key)
-
             self.__dump() #atualiza o arquivo depois de remover um objeto
         except KeyError:
             pass #implementar aqui o tratamento da exceção
