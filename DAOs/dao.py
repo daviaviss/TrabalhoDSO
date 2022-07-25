@@ -1,9 +1,11 @@
 import pickle
 from abc import ABC, abstractmethod
+from telas.tela_abstrata import TelaAbstrata
 
 class DAO(ABC):
     @abstractmethod
     def __init__(self, datasource=''):
+        self.__tela = TelaAbstrata()
         self.__datasource = datasource
         self.__cache = {} #é aqui que vai ficar a lista que estava no controlador. Nesse exemplo estamos usando um dicionario
         try:
@@ -29,13 +31,15 @@ class DAO(ABC):
                 self.__cache[key] = obj #atualiza a entrada
                 self.__dump()  #atualiza o arquivo
         except KeyError:
-            pass  # implementar aqui o tratamento da exceção
+            
+            self.__tela.mostra_mensagem(msg="Nao foi possivel fazer update")
 
     def get(self, key):
         try:
+            self.__dump()
             return self.__cache[key]
         except KeyError:
-            pass #implementar aqui o tratamento da exceção
+            self.__tela.mostra_mensagem("Nao foi possivel obter o objeto")
 
     # esse método precisa chamar o self.__dump()
     def remove(self, key):
@@ -43,7 +47,8 @@ class DAO(ABC):
             self.__cache.pop(key)
             self.__dump() #atualiza o arquivo depois de remover um objeto
         except KeyError:
-            pass #implementar aqui o tratamento da exceção
+            self.__tela.mostra_mensagem(msg="Nao foi possivel remover o objeto")
 
     def get_all(self):
+        self.__dump()
         return self.__cache.values()

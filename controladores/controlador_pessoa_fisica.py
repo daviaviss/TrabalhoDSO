@@ -90,7 +90,16 @@ class ControladorPessoaFisica:
     def exclui_usuario(self):
         opcao = self.tela_pessoa_fisica.mostra_tela_confirmacao()
         if opcao == 0:
-            self.pf_DAO.remove(self.controlador_sessao.usuario_atual.cpf)
+            user = self.controlador_sessao.usuario_atual
+            produtos = self.controlador_sessao.controlador_produto.produtos
+            for p in produtos:
+                if p.criador is user:
+                    mercado = p.mercado
+                    mercado.produtos.remove(p)
+                    self.controlador_sessao.controlador.mercado.update(mercado)
+                    self.controlador_sessao.controlador_produto.remove(p)
+
+            self.pf_DAO.remove(user.cpf)
             self.controlador_sessao.abre_menu()
         return None
 

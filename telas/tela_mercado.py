@@ -45,7 +45,6 @@ class TelaMercado(TelaAbstrata):
                 [sg.Button("Editar Mercado", key=3)],
                 [sg.Button("Excluir Mercado", key=4)],
                 [sg.Button("Listar Produtos Mercado", key=5)],
-                [sg.Button("Gerar Relatório Mercado", key=6)],                                
                 [sg.Button("Voltar", key=0)],
                 ]  
         self.__window = sg.Window('Menu Mercado', layout=layout)

@@ -86,6 +86,12 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
     def exclui_usuario(self):
         opcao = self.tela_pessoa_juridica.mostra_tela_confirmacao()
         if opcao == 0:
+            user = self.controlador_sessao.usuario_atual
+            for mercado in self.controlador_sessao.controlador_mercado.mercados:
+                import pdb;pdb.set_trace()
+                if mercado.proprietario is user:
+                    self.controlador_sessao.controlador_mercado.remove(mercado)
+
             self.pj_DAO.remove(self.controlador_sessao.usuario_atual.cnpj)
             self.controlador_sessao.abre_menu()
         return None

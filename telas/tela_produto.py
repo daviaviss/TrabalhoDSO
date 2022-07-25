@@ -28,35 +28,7 @@ class TelaProduto(TelaAbstrata):
         self.__window.close()
         return event
     
-    # def edita_produto(self, default_data, categorias):
-
-    #     layout = [[sg.Text('Edicao Produto')],           
-    #                 [sg.Text("Nome"), sg.Input(key="nome", default_text=default_data["nome"])],
-    #                 [sg.Text("Descricao"), sg.Input(key="descricao", default_text=default_data["descricao"])],
-    #                 [sg.Button("Editar", key="editar"), sg.Button("Cancelar")]
-    #     ]
-    #     for c in categorias:
-    #         layout.append(
-    #             [sg.Radio(text=c.nome, group_id="categorias", default=True if c.nome.lower() == default_data["categorias"].lower() else False)]
-    #         )
-    #     self.__window = sg.Window("Editar Usuario Fisica", layout=layout)
-    #     # while True:
-    #     while True:
-    #         event, values = self.__window.read()
-    #         if event == "editar":
-    #             if any(
-    #                 [v == "" for k, v in values.items()]
-    #             ):
-    #                 self.mostra_mensagem("Nenhum valor pode ficar em branco!")
-    #                 continue
-    #             self.__window.close()
-    #             dados = {"nome": values["nome"], "descricao": values["descricao"]}
-    #             import pdb;pdb.set_trace()
-    #         if event != "editar":
-    #             self.__window.close()
-    #             return event
-        
-    
+  
     def seleciona_produto(self, dados):
         l = []
         for id, dado in dados.items():

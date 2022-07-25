@@ -53,7 +53,6 @@ class TelaQualificador(TelaAbstrata):
             if event == "confirmar":
                 for k, v in values.items():
                     if v == True:
-                        import pdb;pdb.set_trace()
                         self.__window.close()
                         return k
                 self.mostra_mensagem("Selecione Um Qualificador!")

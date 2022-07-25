@@ -17,6 +17,9 @@ class ControladorProduto:
     
     def get(self, produto):
         return self.__produto_DAO.get(str(produto.id))
+    
+    def remove(self, produto):
+        self.__produto_DAO.remove(str(produto.id))
 
     @property
     def produto_DAO(self):
@@ -35,7 +38,6 @@ class ControladorProduto:
         return self.__controlador_sessao
 
     def compara_dados_produto(self, produto, dados_comparar):
-        # import pdb; pdb.set_trace()
         if produto.nome == dados_comparar["nome_produto"]:
             return True
         for qualificador in produto.qualificadores:
@@ -199,7 +201,6 @@ class ControladorProduto:
         precos.sort(key=lambda preco: preco.valor, reverse=True)
         dados = []
         for preco in precos:
-            import pdb;pdb.set_trace()
             dados.append([preco.produto.nome, preco.produto.descricao, preco.produto.categoria.nome, preco.valor, preco.contador, self.formata_data(preco.produto.data_criacao)])
         return dados
     
@@ -424,7 +425,6 @@ class ControladorProduto:
         produto.nome = dados["nome"]
         produto.descricao = dados["descricao"]
         categoria = self.controlador_sessao.controlador_categoria.get_categoria(dados["categoria"])
-        import pdb;pdb.set_trace()
         produto.categoria = categoria
         self.produto_DAO.update(produto)
         self.tela_produto.mostra_mensagem("Produto Editado com Sucesso!")
@@ -578,7 +578,7 @@ class ControladorProduto:
             if opcao == "voltar":
                 break
             elif opcao == 1:
-                opcoes[opcao](self.produtos, montar_dados=True)
+                opcoes[opcao](self.produto_DAO.get_all(), montar_dados=True)
             else:
                 print(opcao)
                 opcoes[opcao]()
