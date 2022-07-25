@@ -1,4 +1,5 @@
 from abc import ABC
+from errno import ECANCELED
 import PySimpleGUI as sg
 
 class TelaAbstrata(ABC):
@@ -44,10 +45,38 @@ class TelaAbstrata(ABC):
         if all(dados):
             return True
         return False
+    
+    def pega_qualificador(self):
+        l = [
+            [sg.Text("Titulo Qualificador"), sg.Input("titulo")],
+           [sg.Text("Descricao Qualificador"), sg.Input("descricao")], 
+           [sg.Button("Adicionar", key="adicionar"), sg.Button("Voltar")]
+        ]
+        while True:
+            self.__window = sg.Window("Dados Qualificador", l)
+            event, values = self.__window.read()
+            if event == "adicionar":
+                if not values["titulo"] or not values["descricao"]:
+                    self.mostra_mensagem("Todos os dados devem ser preenchidos!")
+                    continue
+                self.__window.close()
+                return values
+            else:
+                self.__window.close()
+                return
 
     def pega_dado_generico(self, msg):
-        while True:
-            dado = input(msg)
-            if not self.verifica_dados([dado]):
-                continue
-            return dado
+        l = [
+            sg.Text("")
+        ]
+
+    def valida_float(self, valor):
+        try:
+            valor = float("{:.2f}".format(float(valor)))
+            if valor < 0:
+                return False
+            return valor
+
+        except:
+            return False
+    

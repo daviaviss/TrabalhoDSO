@@ -1,3 +1,4 @@
+from DAOs.dao_qualificador import QualificadorDAO
 from telas.tela_qualificador import TelaQualificador
 
 
@@ -6,6 +7,20 @@ class ControladorQualificador:
         self.__controlador_sistema = controlador_sistema
         self.__tela_qualificador = TelaQualificador()
         self.__qualificadores = []
+        self.__qualificador_DAO = QualificadorDAO()
+    
+    @property
+    def qualificador_DAO(self):
+        return self.__qualificador_DAO
+    
+    def add(self, qualificador):
+        self.qualificador_DAO.add(qualificador)
+
+    def get(self, id_qualificador):
+        return self.qualificador_DAO.get(id_qualificador)
+    
+    def remove(self, id_qualificador):
+        return self.qualificador_DAO.remove(id_qualificador)
 
     @property
     def controlador_sistema(self):
@@ -31,3 +46,6 @@ class ControladorQualificador:
 
     def lista_qualificadores(self, qualificador):
         self.tela_qualificador.mostra_dados_qualificador(qualificador)
+
+    def pega_qualificador(self, qualificadores):
+        return self.tela_qualificador.seleciona_qualificador(qualificadores)

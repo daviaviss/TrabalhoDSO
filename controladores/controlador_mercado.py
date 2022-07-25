@@ -110,14 +110,17 @@ class ControladorMercado:
         self.tela_mercado.mostra_mensagem("Mercado Editado com Sucesso!")
 
 
-    def seleciona_mercado(self):
+    def seleciona_mercado(self, todos=False):
         if not self.mercados:
             self.tela_mercado.mostra_mensagem("Nao existem mercados!")
             return False
         dados = {}
         for m in self.mercados:
-            if m.proprietario.cnpj == self.controlador_sessao.usuario_atual.cnpj:
-                dados[m.cnpj] = m.nome + " - " + m.cnpj
+            if not todos:
+                if m.proprietario.cnpj == self.controlador_sessao.usuario_atual.cnpj:
+                    dados[m.cnpj] = m.nome + " - " + m.cnpj
+            else:
+               dados[m.cnpj] = m.nome + " - " + m.cnpj 
 
         cnpj = self.tela_mercado.seleciona_mercado(dados)
         if not cnpj:
@@ -186,7 +189,7 @@ class ControladorMercado:
         self.controlador_sessao.controlador_produto.deleta_produto(produto)
 
     def lista_produtos_mercado(self):
-        mercado = self.seleciona_mercado()
+        mercado = self.seleciona_mercado(todos=True)
         if not mercado:
             return
         if not mercado.produtos:
@@ -277,10 +280,7 @@ class ControladorMercado:
             3: self.edita_mercado,
             4: self.exclui_mercado,
             5: self.lista_produtos_mercado,
-            6: self.edita_endereco_mercado,
-            7: self.edita_nome_mercado,
-            8: self.exlui_produto_mercado,
-            9: self.gera_relatorio_mercado,
+            6: self.gera_relatorio_mercado,
         }
         while True:
             if tipo_usuario == "fisico":

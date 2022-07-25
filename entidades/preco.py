@@ -10,6 +10,10 @@ class Preco:
         self.__id = uuid.uuid4
 
     @property
+    def id(self):
+        return str(self.__id)
+
+    @property
     def valor(self) -> float:
         return self.__valor
 

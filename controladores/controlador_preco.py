@@ -1,3 +1,4 @@
+from DAOs.dao_preco import PrecoDAO
 from entidades.preco import Preco
 from entidades.produto import Produto
 from telas import tela_preco
@@ -8,6 +9,11 @@ class ControladorPreco:
         self.__controlador_sistema = controlador_sitema
         self.__precos = []
         self.__tela_preco = tela_preco.TelaPreco()
+        self.__preco_DAO = PrecoDAO()
+
+    @property
+    def preco_DAO(self):
+        return self.__preco_DAO
 
     @property
     def tela_preco(self):

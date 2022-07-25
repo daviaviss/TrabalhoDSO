@@ -72,3 +72,7 @@ class Produto:
     @descricao.setter
     def descricao(self, descricao: str):
         self.__descricao = descricao
+
+    @categoria.setter
+    def categoria(self, categoria):
+        self.__categoria = categoria

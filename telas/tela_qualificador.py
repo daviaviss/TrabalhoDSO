@@ -41,3 +41,23 @@ class TelaQualificador(TelaAbstrata):
         event, values = self.__window.read()
         # descricao = input("Descricao do qualificador: ")
         return {"titulo": titulo, "descricao": values["descricao"]}
+
+    def seleciona_qualificador(self, dados):
+        l = [
+            [sg.Radio(text=dado, group_id="qualificadores", key=id) for id, dado in dados.items()],
+            [sg.Button("Cconfirmar", key="confirmar"), sg.Button("Voltar")]
+        ]
+        while True:
+            self.__window = sg.Window("Dados Qualificador", l)
+            event, values = self.__window.read()
+            if event == "confirmar":
+                for k, v in values.items():
+                    if v == True:
+                        import pdb;pdb.set_trace()
+                        self.__window.close()
+                        return k
+                self.mostra_mensagem("Selecione Um Qualificador!")
+                continue
+            else:
+                self.__window.close()
+                return 

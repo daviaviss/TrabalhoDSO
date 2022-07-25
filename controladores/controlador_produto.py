@@ -1,5 +1,3 @@
-from cgi import print_directory
-from math import prod
 from DAOs.dao_produto import ProdutoDAO
 from entidades.categoria import Categoria
 from entidades.mercado import Mercado
@@ -8,7 +6,6 @@ from entidades.qualificador import Qualificador
 from telas.tela_produto import TelaProduto
 from entidades.produto import Produto
 from entidades.preco import Preco
-from datetime import datetime
 
 
 class ControladorProduto:
@@ -24,7 +21,7 @@ class ControladorProduto:
 
     @property
     def produtos(self):
-        return self.__produtos
+        return self.__produto_DAO.get_all()
 
     @property
     def tela_produto(self):
@@ -64,24 +61,38 @@ class ControladorProduto:
     def seleciona_produto(self, produtos):
         dados = {}
         for p in produtos:
-            dados[str(p.id)] = p.nome + " - " + p.descricao
+            try:
+                nome = p.nome
+                info = "Nome: {} | Descricao:  {} | Categoria: {} | ".format(nome, p.descricao, p.categoria.nome)
+                dados[str(p.id)] = info
+            except:
+                continue
         id_produto = self.tela_produto.seleciona_produto(dados)
+        if not id_produto:
+            return
         produto = self.pega_produto(id_produto)
         return produto
 
     def lista_produtos(self, produtos, montar_dados=False):
         dados = []
-        for p in produtos:
+        for produto in produtos:
             dados.append(
-                [p.nome, p.descricao, p.categoria]
+                [produto.nome, produto.descricao, produto.categoria.nome, "", ""]
             )
-        self.tela_produto.mostra_dado_produto(dados)
+            for preco in produto.precos:
+                dados.append(
+                    ["xxxxxxx", "xxxxxxx", "xxxxxxx", preco.valor, preco.contador]
+                )
+            if produto.precos:
+                dados.append(
+                    ["-------","-------","-------","-------","-------"]
+                )
+        self.tela_produto.mostra_dados_produtos(dados)
 
-    def filtra_produtos(self, filtros: dict):
+    def filtra_produtos(self, nome, categoria):
         produtos_filtrados = []
-        for i, p in enumerate(self.produtos):
-            print(i)
-            if self.compara_dados_produto(p, filtros):
+        for p in self.produtos:
+            if p.nome == nome or p.categoria.nome.lower() == categoria:
                 produtos_filtrados.append(p)
         return produtos_filtrados
 
@@ -139,12 +150,38 @@ class ControladorProduto:
             precos.sort(key=lambda preco: preco.contador)
 
         return precos
+    
+    def ordena_produto_por_mais_antigo(self, produtos):
+        produtos.sort(key=lambda produto: produto.data_criacao, reverse=True)
+    
+    def ordena_produto_por_mais_antigo(self, produtos):
+        produtos.sort(key=lambda produto: produto.data_criacao)
+    
+    def ordena_por_mais_confirmacoes(self, produtos):
+        precos = []
+        for p in produtos:
+            for preco in p.precos:
+                precos.append(preco)
+        precos_ordenados = precos.sort(key=lambda preco: preco.contador, reverse=True)
+        produtos_ordenados = []
+        for preco in precos_ordenados:
+            produtos_ordenados.append(preco.produto)
+    
+    def ordena_por_menos_confirmacoes(self, produtos):
+        precos = []
+        for p in produtos:
+            for preco in p.precos:
+                precos.append(preco)
+        precos_ordenador = precos.sort(key=lambda preco: preco.contador)
 
     def ordena_produtos(self, produtos: dict, modo_ordenacao, atributo_ordenacao):
         modos = {
-            "data": self.ordena_produto_por_data,
-            "preco": self.ordena_produto_por_preco,
-            "numero_confirmacoes": self.ordena_por_confirmacoes_preco,
+            "mais_antigo": self.ordena_produto_por_mais_antigo,
+            "mais_recente": self.ordena_produto_por_preco,
+            "mais_confirmacoes": self.ordena_por_mais_confirmacoes,
+            "menos_confirmacoes": self.ordena_por_menos_confirmacoes,
+            "mais_caro": self.ordena_por_mais_caro,
+            "mais_barato": self.ordena_por_mais_barato
         }
         metodo = modos[atributo_ordenacao]
         metodo(produtos, modo_ordenacao)
@@ -172,6 +209,19 @@ class ControladorProduto:
             if resposta == 1:
                 break
         return dados_qualificadores
+    
+    def verifica_produto_duplicado(self, nome, categoria, preco):
+        produtos = self.produtos
+        for p in produtos:
+            if p.nome == nome and p.categoria == categoria and p.preco.valor == preco:
+                return p
+        return False
+    
+
+    def get_preco_produto(self, produto, valor_preco):
+        for preco in produto.precos:
+            if preco.valor == valor_preco:
+                return preco
 
     def cadastra_produto(self):
         if not self.verifica_existe_mercado():
@@ -179,36 +229,36 @@ class ControladorProduto:
                 "Crie pelo menos um mercado para cadastrar um produto!"
             )
             return
-
-        dados_produto = self.tela_produto.pega_dados_produto()
-        preco = self.controlador_sessao.controlador_preco.cadastra_preco()
-        mercado = self.controlador_sessao.controlador_mercado.pega_mercado_por_cnpj()
-        if not mercado:
-            self.tela_produto.mostra_mensagem("Mercado nao encontrado!")
+        dados = self.tela_produto.pega_dados_produto([c.nome for c in self.controlador_sessao.controlador_categoria.categorias])
+        if not dados:
             return
-        categoria = self.controlador_sessao.controlador_categoria.pega_categoria()
-        qualificadores = self.cadastra_qualificadores()
+        mercado = self.controlador_sessao.controlador_mercado.seleciona_mercado()
+        if not mercado:
+            return
+        produto_duplicado = self.verifica_produto_duplicado(dados["nome"], dados["categoria"], dados["preco"])
+        if produto_duplicado:
+            preco = self.get_preco_produto(produto_duplicado, dados["preco"])
+            preco.contador += 1
+            self.controlador_sessao.controlador_preco.preco_DAO.update(preco)
+            self.tela_produto.mostra_mensagem("Preco ja cadastrado, o contador foi incrementado!")
+            return
+        categoria = self.controlador_sessao.controlador_categoria.get_categoria(dados["categoria"])
 
-        dados = {}
-        dados["nome"] = dados_produto["nome"]
-        dados["preco"] = preco
-        dados["mercado"] = mercado["mercado"]
-        dados["categoria"] = categoria
-
-        user = self.controlador_sessao.usuario_atual
-        produto = Produto(
-            dados_produto["nome"],
-            dados_produto["descricao"],
-            categoria,
-            qualificadores,
-            mercado["mercado"],
-            user,
+        novo_produto = Produto(
+            nome= dados["nome"],
+            descricao=dados["descricao"],
+            categoria = categoria,
+            dados_qualificadores= dados["qualificadores"],
+            mercado=mercado,
+            criador= self.controlador_sessao.usuario_atual
         )
-        mercado["mercado"].produtos.append(produto)
-        preco = Preco(preco, produto)
-        produto.precos.append(preco)
-        self.produtos.append(produto)
-        self.tela_produto.mostra_mensagem("Produto cadastrado com sucesso!")
+        preco = Preco(valor=dados["preco"], produto=novo_produto)
+        novo_produto.precos.append(preco)
+        self.produto_DAO.add(novo_produto)
+        mercado.produtos.append(novo_produto)
+        self.controlador_sessao.controlador_mercado.mercado_DAO.update(mercado)
+        self.controlador_sessao.controlador_preco.preco_DAO.add(preco)
+        self.tela_produto.mostra_mensagem("Produto Criado com Sucesso!")
 
     def lista_relatorio_produto(self, dados):
         for d in dados:
@@ -253,139 +303,166 @@ class ControladorProduto:
             )
         )
         return permissao
+    
+    def verica_produtos_permitidos(self):
+        user = self.controlador_sessao.usuario_atual
+        produtos = []
+        for m in self.controlador_sessao.controlador_mercado.mercados:
+            if m.proprietario.cnpj == user.cnpj:
+                for p in m.produtos:
+                    p = self.produto_DAO.get(str(p.id))
+                    produtos.append(p)
+        return produtos
+    
+    def verifica_preco_duplicado(self, produto, preco):
+        import pdb;pdb.set_trace()
+        for preco_produto in produto.precos:
+            if preco_produto.valor == preco:
+                return preco_produto
+        return False
 
     def adicionar_preco_produto(self):
-        while True:
-            id_produto = self.tela_produto.pega_dado_generico("ID do produto")
-            produto = self.pega_produto(id_produto)
-            if not produto:
-                self.tela_produto.mostra_mensagem("Nao existe um produto com esse ID!")
-                if self.tela_produto.mostra_pergunta() == 1:
-                    return
-                continue
-            if hasattr(self.controlador_sessao.usuario_atual.cnpj):
-                permissao = self.verifica_permissao(produto)
-                if not permissao:
-                    self.tela_produto.mostra_mensagem(
-                        "Voce nao tem permissao para alterar o preco desse produto"
-                    )
-                    return
-            valor_preco = self.tela_produto.pega_valor_preco()
-            for preco in produto.precos:
-                if preco.valor == valor_preco:
-                    preco.contador += 1
-                    self.tela_produto.mostra_mensagem(
-                        "Preco ja cadastrado, o contador foi incrementado."
-                    )
-                    return
+        if not self.produtos:
+            self.tela_produto.mostra_mensagem("Nenhum Produto Cadastrado!")
+            return
 
-            preco = Preco(valor_preco, produto)
-            produto.precos.append(preco)
-            self.controlador_sessao.controlador_preco.precos.append(preco)
-            self.tela_produto.mostra_mensagem("Preco cadastrado com sucesso!")
-            break
+        if hasattr(self.controlador_sessao.usuario_atual, "cnpj"):
+            produtos = self.verica_produtos_permitidos()
+            if not produtos:
+                self.tela_produto.mostra_mensagem("Nenhum Produto Cadastrado!")
+                return
+        else:
+            produtos = self.produtos
+        
+        produto = self.seleciona_produto(produtos)
+        if not produto:
+            return
+        precos = [p.valor for p in produto.precos]
+        valor_preco = self.tela_produto.pega_valor_preco(precos)
+        import pdb;pdb.set_trace()
+        if not valor_preco:
+            return
+        preco = self.verifica_preco_duplicado(produto, valor_preco)
+        if preco:
+            preco.contador += 1
+            self.controlador_sessao.controlador_preco.preco_DAO.update(preco)
+            self.tela_produto.mostra_mensagem("preco ja existe, contador incrementado!")
+            return
+        novo_preco = Preco(valor=valor_preco, produto=produto)
+        produto.precos.append(novo_preco)
+        self.controlador_sessao.controlador_produto.produto_DAO.update(produto)
+        self.controlador_sessao.controlador_preco.preco_DAO.add(novo_preco)
+    
+    def edita_produto(self):
+        if not self.produtos:
+            self.tela_produto.mostra_mensagem("Nenhum Produto Cadastrado!")
+            return
+
+        if hasattr(self.controlador_sessao.usuario_atual, "cnpj"):
+            produtos = self.verica_produtos_permitidos()
+            if not produtos:
+                self.tela_produto.mostra_mensagem("Nenhum Produto Cadastrado!")
+                return
+        else:
+            produtos = self.produtos
+        produto = self.seleciona_produto(produtos)
+        if not produto:
+            return
+        dados = {
+            "nome": produto.nome,
+            "descricao": produto.descricao,
+            "categoria": produto.categoria.nome
+        }
+        categorias = [c.nome for c in self.controlador_sessao.controlador_categoria.categorias]
+        dados = self.tela_produto.edita_produto(dados, categorias)
+        if not dados:
+            return
+        produto.nome = dados["nome"]
+        produto.descricao = dados["descricao"]
+        categoria = self.controlador_sessao.controlador_categoria.get_categoria(dados["categoria"])
+        import pdb;pdb.set_trace()
+        produto.categoria = categoria
+        self.produto_DAO.update(produto)
+        self.tela_produto.mostra_mensagem("Produto Editado com Sucesso!")
 
     def busca_produto(self):
-        dados_busca = self.tela_produto.menu_busca()
-        filtros = {
-            "nome": dados_busca["nome_produto"],
-            "qualificadores": dados_busca["qualificadores"],
-        }
-        produtos = self.filtra_produtos(filtros)
+        categorias = [c.nome for c in self.controlador_sessao.controlador_categoria.categorias]
+        dados_busca = self.tela_produto.menu_busca(categorias)
+        produtos_filtrados = self.filtra_produtos(dados_busca["nome"], dados_busca["categoria"])
         produtos = self.ordena_produtos(
-            produtos, dados_busca["modo_ordenacao"], dados_busca["atributo_ordenacao"]
+            produtos, dados_busca["modo"]
         )
         for produto in produtos:
             self.tela_produto.mostra_dado_produto(self.monta_dados_produto(produto))
 
     def adiciona_qualificador_produto(self):
-        while True:
-            id_produto = self.tela_produto.pega_dado_generico("ID produto: ")
-            produto = self.pega_produto(id_produto)
-            if not produto:
-                print("Produto nao encontrado!")
-                opcao = self.tela_produto.mostra_pergunta()
-                if opcao == 1:
-                    return
-                else:
-                    continue
-            dados_qualificadores = (
-                self.controlador_sessao.controlador_qualificador.cadastra_qualificador()
-            )
-            produto.qualificadores.append(
-                Qualificador(
-                    dados_qualificadores["titulo"], dados_qualificadores["descricao"]
-                )
-            )
-            self.tela_produto.mostra_mensagem("Qualificador adicionado com sucesso!")
-            break
+        import pdb;pdb.set_trace()
+        user = self.controlador_sessao.usuario_atual
+        if hasattr(user, "cpf"):
+            produtos = self.verifica_permitidos_pf()
+        else:
+            produtos = self.verica_produtos_permitidos()
+        if not produtos:
+            self.tela_produto.mostra_mensagem("Nenhum produto para modificar")
+        produto = self.seleciona_produto(produtos)
+        if not produto:
+            return
+        dados = self.tela_produto.pega_dados_qualificadores()
+        if not dados:
+            return
+        for dado in dados:
+            qualificador = Qualificador(dado["titulo"], dado["descricao"])
+            self.controlador_sessao.controlador_qualificador.add(qualificador)
+            produto.qualificadores.append(qualificador)
+        self.produto_DAO.update(produto)
+        self.tela_produto.mostra_mensagem("Qualificador adicionado com sucesso!")
+            
 
     def remove_qualificador_produto(self):
-        while True:
-            id_produto = self.tela_produto.pega_dado_generico("ID do produto: ")
-            produto = self.pega_produto(id_produto)
-            if not produto:
-                print("Produto nao encontrado")
-                opcao = self.tela_produto.mostra_pergunta()
-                if opcao == 1:
-                    return
-                else:
-                    continue
-            for p in self.produtos:
-                for qualificador in p.qualificadores:
-                    self.controlador_sessao.controlador_qualificador.lista_qualificadores(
-                        qualificador
-                    )
-            id_qualificador = self.tela_produto.pega_dado_generico(
-                "ID do qualificador: "
-            )
-            for p in self.produtos:
-                for index, q in enumerate(p.qualificadores):
-                    if str(q.id) == id_qualificador:
-                        del p.qualificadores[index]
-                        self.tela_produto.mostra_mensagem("Qualificador Deletado!")
-                        return
-            self.tela_produto.mostra_mensagem(
-                "Nenhum qualficador com esse id foi achado no produto informado!"
-            )
-
-    def modifica_nome_descricao_produto(self, atributo):
-        while True:
-            id_produto = self.tela_produto.pega_dado_generico("ID do produto: ")
-            produto = self.pega_produto(id_produto)
-            if not produto:
-                print("Produto nao encontrado")
-                opcao = self.tela_produto.mostra_pergunta()
-                if opcao == 1:
-                    return
-                else:
-                    continue
-            msg = "Insira o novo valor de " + atributo + " :"
-            dado = self.tela_produto.pega_dado_generico(msg)
-            if atributo == "nome":
-                produto.nome = dado
-                self.tela_produto.mostra_mensagem("Nome atualizado!")
-            elif atributo == "descricao":
-                produto.descricao = dado
-                self.tela_produto.mostra_mensagem("Descricao atualiada!")
+        user = self.controlador_sessao.usuario_atual
+        if hasattr(user, "cpf"):
+            produtos = self.verifica_permitidos_pf()
+        else:
+            produtos = self.verica_produtos_permitidos()
+        if not produtos:
+            self.tela_produto.mostra_mensagem("Nenhum produto para ")
+        produto = self.seleciona_produto(produtos)
+        if not produto:
             return
+        dados = {}
+        for q in produto.qualificadores:
+            dados[str(q.id)] = q.titulo + " - " + q.descricao
+        id_qualificador = self.controlador_sessao.controlador_qualificador.pega_qualificador(dados)
+        if not id_qualificador:
+            return
+        for index, q in enumerate(produto.qualificadores):
+            if str(q.id) == id_qualificador:
+                del produto.qualificadores[index]
+                self.controlador_sessao.controlador_qualificador.remove(id_qualificador)
+                self.produto_DAO.update(produto)
+                self.tela_produto.mostra_mensagem("Qualificador Removido!")
+                break
+    def verifica_permitidos_pf(self):
+        permitidos = []
+        produtos = self.produto_DAO.get_all()
+        for p in produtos:
+            if p.criador.cnpj == self.controlador_sessao.usuario_atual.cnpj:
+                permitidos.append(p)
+        return permitidos
 
     def exclui_produto(self):
-        while True:
-            id_produto = self.tela_produto.pega_dado_generico("ID do produto: ")
-            produto = self.pega_produto(id_produto)
-            if not produto:
-                print("Produto nao encontrado")
-                opcao = self.tela_produto.mostra_pergunta()
-                if opcao == 1:
-                    return
-                else:
-                    continue
-            for index, p in enumerate(self.produtos):
-                if p == produto:
-                    del self.produtos[index]
-                    self.tela_produto.mostra_mensagem("Produto deletado!")
-                    return
+        user = self.controlador_sessao.usuario_atual
+        if hasattr(user, "cpf"):
+            produtos = self.verifica_permitidos_pf()
+        else:
+            produtos = self.verica_produtos_permitidos()
+        if not produtos:
+            self.tela_produto.mostra_mensagem("Nenhum produto para ")
+        produto = self.seleciona_produto(produtos)
+        if not produto:
+            return
+        self.produto_DAO.remove(str(produto.id))
+        self.tela_produto.mostra_mensagem("Produto Delete com Sucesso!")
 
     def abre_menu_busca(self):
         opcoes_usuario = self.tela_produto.menu_busca()
@@ -440,26 +517,23 @@ class ControladorProduto:
             1: self.lista_produtos,
             2: self.cadastra_produto,
             3: self.adicionar_preco_produto,
-            4: self.confirma_preco_produto,
-            5: self.modifica_nome_descricao_produto,
-            6: self.modifica_nome_descricao_produto,
-            7: self.adiciona_qualificador_produto,
-            8: self.remove_qualificador_produto,
-            9: self.exclui_produto,
+            4: self.adicionar_preco_produto,
+            5: self.edita_produto,
+            6: self.adiciona_qualificador_produto,
+            7: self.remove_qualificador_produto,
+            8: self.exclui_produto,
+            9: self.busca_produto
         }
-
-        dados_edicao = {5: "nome", 6: "descricao"}
 
         while True:
             opcao = self.tela_produto.menu_produtos()
-            if opcao == 0:
+            if opcao == "voltar":
                 break
-            elif opcao in dados_edicao:
-                opcoes[opcao](dados_edicao[opcao])
             elif opcao == 10:
                 self.abre_menu_busca()
 
             elif opcao == 1:
                 opcoes[opcao](self.produtos, montar_dados=True)
             else:
+                print(opcao)
                 opcoes[opcao]()
