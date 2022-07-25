@@ -1,3 +1,4 @@
+from DAOs.pessoa_fisica_dao import PessoaFisicaDAO
 from controladores.controlador_pessoa_abstrato import ControladorPessoaAbstrato
 from entidades.pessoa_juridica import PessoaJuridica
 from telas.tela_pessoa_juridica import TelaPessoaJuridica
@@ -8,6 +9,11 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
         self.__controlador_sessao = controlador_sessao
         self.__pessoas_juridicas = []
         self.__tela_pessoa_juridica = TelaPessoaJuridica()
+        self.__pj_DAO = PessoaFisicaDAO()
+
+    @property
+    def pj_DAO(self):
+        return self.__pj_DAO
 
     @property
     def controlador_sessao(self):
@@ -32,7 +38,8 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
         return False
 
     def pega_pessoa_por_email(self, email):
-        for p in self.pessoas_juridicas:
+        pessoas_juridicas = self.pj_DAO.get_all()
+        for p in pessoas_juridicas:
             if p.email == email:
                 return p
         return False

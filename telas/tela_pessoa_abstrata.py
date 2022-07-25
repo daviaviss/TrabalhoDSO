@@ -16,6 +16,7 @@ class TelaPessoaAbstrata(TelaAbstrata):
         self.__window = sg.Window('Menu Principal', layout=layout)
 
         event, values = self.__window.read()
+        self.__window.close()
         return event
 
 

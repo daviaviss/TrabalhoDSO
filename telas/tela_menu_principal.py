@@ -15,4 +15,6 @@ class TelaMenuPrincipal(TelaAbstrata):
         self.__window = sg.Window('Menu Principal', layout=layout)
 
         event, values = self.__window.read()
-        return event
+        if event != None:
+            self.__window.close()
+            return event

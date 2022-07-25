@@ -1,3 +1,4 @@
+from DAOs.pessoa_dao import PessoaDAO
 from controladores import (
     controlador_categoria,
     controlador_endereco,
@@ -35,6 +36,7 @@ class ControladorSessao:
         )
         self.__tela_sessao = TelaSessao()
         self.__usuario_atual = None
+        self.__pessoas_DAO = PessoaDAO()
 
     @property
     def usuario_atual(self):
