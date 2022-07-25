@@ -1,6 +1,7 @@
 from datetime import datetime
 import uuid
 
+
 class Preco:
     def __init__(self, valor: float, produto):
         self.__valor = valor

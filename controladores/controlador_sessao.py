@@ -112,7 +112,7 @@ class ControladorSessao:
         self.controlador_pessoa_juridica.cadastra_pessoa_juridica()
 
     def lista_usuarios(self):
-        dados =[]
+        dados = []
         pessoas_j = self.controlador_pessoa_juridica.pessoas_juridicas
         for pj in pessoas_j:
             dados.append([pj.nome, pj.email, pj.cnpj, "Juridica"])

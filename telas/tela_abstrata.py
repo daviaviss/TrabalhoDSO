@@ -2,6 +2,7 @@ from abc import ABC
 from errno import ECANCELED
 import PySimpleGUI as sg
 
+
 class TelaAbstrata(ABC):
     def __init__(self):
         self.__window = None
@@ -9,7 +10,7 @@ class TelaAbstrata(ABC):
     def mostra_tela_confirmacao(self):
         l = [
             [sg.Text("TEM CERTEZA QUE DESEJA REALIZAR ESSA ACAO")],
-            [sg.Button("SIM", key=0), sg.Button("NAO", key=1)]
+            [sg.Button("SIM", key=0), sg.Button("NAO", key=1)],
         ]
         self.__window = sg.Window("Tela Confirmacao", l)
         event, values = self.__window.read()
@@ -31,12 +32,12 @@ class TelaAbstrata(ABC):
         return True
 
     def mostra_pergunta(self):
-        layout = [          
-                [sg.Text("Deseja continuar?")],
-                [sg.Button("Sim", key=0)],
-                [sg.Button("Não", key=1)],
-                ]  
-        self.__window = sg.Window('Pergunta', layout=layout)
+        layout = [
+            [sg.Text("Deseja continuar?")],
+            [sg.Button("Sim", key=0)],
+            [sg.Button("Não", key=1)],
+        ]
+        self.__window = sg.Window("Pergunta", layout=layout)
 
         event, values = self.__window.read()
         return event
@@ -45,12 +46,12 @@ class TelaAbstrata(ABC):
         if all(dados):
             return True
         return False
-    
+
     def pega_qualificador(self):
         l = [
             [sg.Text("Titulo Qualificador"), sg.Input("titulo")],
-           [sg.Text("Descricao Qualificador"), sg.Input("descricao")], 
-           [sg.Button("Adicionar", key="adicionar"), sg.Button("Voltar")]
+            [sg.Text("Descricao Qualificador"), sg.Input("descricao")],
+            [sg.Button("Adicionar", key="adicionar"), sg.Button("Voltar")],
         ]
         while True:
             self.__window = sg.Window("Dados Qualificador", l)
@@ -66,9 +67,7 @@ class TelaAbstrata(ABC):
                 return
 
     def pega_dado_generico(self, msg):
-        l = [
-            sg.Text("")
-        ]
+        l = [sg.Text("")]
 
     def valida_float(self, valor):
         try:
@@ -79,4 +78,3 @@ class TelaAbstrata(ABC):
 
         except:
             return False
-    

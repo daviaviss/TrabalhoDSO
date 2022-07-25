@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-class Pessoa(ABC):
 
+class Pessoa(ABC):
     @abstractmethod
     def __init__(self, nome: str, email: str):
         super().__init__()

@@ -9,7 +9,7 @@ class Qualificador:
 
     def __str__(self):
         return self.__titulo
-    
+
     @property
     def id(self):
         return self.__id

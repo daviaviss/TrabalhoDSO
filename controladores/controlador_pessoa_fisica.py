@@ -3,6 +3,7 @@ from telas.tela_pessoa_fisica import TelaPessoaFisica
 from entidades.pessoa_fisica import PessoaFisica
 from DAOs.pessoa_fisica_dao import PessoaFisicaDAO
 
+
 class ControladorPessoaFisica:
     def __init__(self, controlador_sessao):
         self.__controlador_sessao = controlador_sessao
@@ -10,11 +11,11 @@ class ControladorPessoaFisica:
         self.__tela_pessoa_fisica = TelaPessoaFisica()
         self.__pf_DAO = PessoaFisicaDAO()
         self.__pessoas_DAO = PessoaDAO()
-    
+
     @property
     def pf_DAO(self):
         return self.__pf_DAO
-    
+
     @property
     def pessoas_DAO(self):
         return self.__pessoas_DAO
@@ -62,19 +63,12 @@ class ControladorPessoaFisica:
         dados = []
         pessoas_fisicas = self.pf_DAO.get_all()
         for p in pessoas_fisicas:
-            dados.append(
-                [p.nome, p.email, p.cpf]
-            )
+            dados.append([p.nome, p.email, p.cpf])
         self.tela_pessoa_fisica.mostra_dado_usuario_fisico(dados)
-    
 
     def edita_usuario_fisico(self):
         user = self.controlador_sessao.usuario_atual
-        dados = {
-            "nome": user.nome,
-            "email": user.email,
-            "cpf": user.cpf
-        }
+        dados = {"nome": user.nome, "email": user.email, "cpf": user.cpf}
         dados = self.tela_pessoa_fisica.edita_pessoa_fisica(default_data=dados)
         if not isinstance(dados, dict):
             return None

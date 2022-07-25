@@ -66,11 +66,7 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
 
     def edita_usuario_juridico(self):
         user = self.controlador_sessao.usuario_atual
-        dados = {
-            "nome": user.nome,
-            "email": user.email,
-            "cnpj": user.cnpj
-        }
+        dados = {"nome": user.nome, "email": user.email, "cnpj": user.cnpj}
         dados = self.tela_pessoa_juridica.edita_pessoa_juridica(dados)
         if not isinstance(dados, dict):
             return None
@@ -88,7 +84,9 @@ class ControladorPessoaJuridica(ControladorPessoaAbstrato):
         if opcao == 0:
             user = self.controlador_sessao.usuario_atual
             for mercado in self.controlador_sessao.controlador_mercado.mercados:
-                import pdb;pdb.set_trace()
+                import pdb
+
+                pdb.set_trace()
                 if mercado.proprietario is user:
                     self.controlador_sessao.controlador_mercado.remove(mercado)
 

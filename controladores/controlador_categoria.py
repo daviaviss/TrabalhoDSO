@@ -17,11 +17,10 @@ class ControladorCategoria:
         self.__categoria_DAO = CategoriaDAO()
         self.__tela_categoria = TelaCategoria()
         self.cria_categorias()
-    
+
     def cria_categorias(self):
-         for c in CATEGORIAS:
+        for c in CATEGORIAS:
             self.__categoria_DAO.add(Categoria(c.lower()))
-            
 
     @property
     def controlador_sistema(self):
@@ -30,7 +29,7 @@ class ControladorCategoria:
     @property
     def categorias(self):
         return self.__categoria_DAO.get_all()
-    
+
     def get_categoria(self, nome):
         return self.__categoria_DAO.get(nome)
 

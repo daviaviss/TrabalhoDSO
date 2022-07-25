@@ -1,6 +1,7 @@
 from telas.tela_abstrata import TelaAbstrata
 import PySimpleGUI as sg
 
+
 class TelaEndereco(TelaAbstrata):
     def __init__(self):
         self.__window = None

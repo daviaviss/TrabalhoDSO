@@ -8,17 +8,17 @@ class ControladorQualificador:
         self.__tela_qualificador = TelaQualificador()
         self.__qualificadores = []
         self.__qualificador_DAO = QualificadorDAO()
-    
+
     @property
     def qualificador_DAO(self):
         return self.__qualificador_DAO
-    
+
     def add(self, qualificador):
         self.qualificador_DAO.add(qualificador)
 
     def get(self, id_qualificador):
         return self.qualificador_DAO.get(id_qualificador)
-    
+
     def remove(self, id_qualificador):
         return self.qualificador_DAO.remove(id_qualificador)
 

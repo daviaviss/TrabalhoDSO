@@ -2,15 +2,16 @@ from entidades.preco import Preco
 from telas.tela_abstrata import TelaAbstrata
 import PySimpleGUI as sg
 
+
 class TelaPreco(TelaAbstrata):
     def __init__(self):
         self.__window = None
-    
+
     def pega_valor_preco(self):
         layout = [
-                [sg.Text("Preco:"), sg.Input(key="preco")],
-                [sg.Button("Cadastrar preco", key="cadastrar_preco")]
-            ]
+            [sg.Text("Preco:"), sg.Input(key="preco")],
+            [sg.Button("Cadastrar preco", key="cadastrar_preco")],
+        ]
         self.__window = sg.Window("Preco", layout)
         while True:
             event, values = self.__window.read()
