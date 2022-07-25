@@ -195,7 +195,8 @@ class ControladorMercado:
         if not mercado.produtos:
             self.tela_mercado.mostra_mensagem("Mercado Nao Contem Produtos!")
             return
-        self.controlador_sessao.controlador_produtos.lista_produtos(mercado.produtos)
+        produtos = [self.controlador_sessao.controlador_produto.get(produto) for produto in mercado.produtos]
+        self.controlador_sessao.controlador_produto.lista_produtos(produtos)
 
 
     def verifica_produto_mercado(self, produto):

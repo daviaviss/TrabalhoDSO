@@ -14,6 +14,9 @@ class ControladorProduto:
         self.__produtos = []
         self.__tela_produto = TelaProduto()
         self.__produto_DAO = ProdutoDAO()
+    
+    def get(self, produto):
+        return self.__produto_DAO.get(str(produto.id))
 
     @property
     def produto_DAO(self):
@@ -91,9 +94,9 @@ class ControladorProduto:
 
     def filtra_produtos(self, nome, categoria):
         produtos_filtrados = []
-        for p in self.produtos:
-            if p.nome == nome or p.categoria.nome.lower() == categoria:
-                produtos_filtrados.append(p)
+        for produto in self.produtos:
+            if produto.nome == nome or produto.categoria.nome.lower() == categoria:
+                produtos_filtrados.append(produto)
         return produtos_filtrados
 
     def concatena_qualificadores(self, qualificadores: list) -> str:
@@ -152,39 +155,81 @@ class ControladorProduto:
         return precos
     
     def ordena_produto_por_mais_antigo(self, produtos):
+        produtos_ordenados = []
         produtos.sort(key=lambda produto: produto.data_criacao, reverse=True)
+        for p in produtos:
+            produtos_ordenados.append([p.nome, p.descricao, p.categoria.nome, p.precos[0].valor if p.precos else "Sem Preco", p.precos[0].contador if p.precos else 0, self.formata_data(p.data_criacao)])
+        return produtos_ordenados
     
-    def ordena_produto_por_mais_antigo(self, produtos):
+    def ordena_produto_por_mais_recente(self, produtos):
+        produtos_ordenados = []
         produtos.sort(key=lambda produto: produto.data_criacao)
+        for p in produtos:
+            produtos_ordenados.append([p.nome, p.descricao, p.categoria.nome, p.precos[0] if p.precos else "Sem Preco", p.precos[0] if p.precos else 0, self.formata_data(p.data_criacao)])
+        return produtos_ordenados
+
     
     def ordena_por_mais_confirmacoes(self, produtos):
         precos = []
         for p in produtos:
             for preco in p.precos:
                 precos.append(preco)
-        precos_ordenados = precos.sort(key=lambda preco: preco.contador, reverse=True)
-        produtos_ordenados = []
-        for preco in precos_ordenados:
-            produtos_ordenados.append(preco.produto)
+        precos.sort(key=lambda preco: preco.contador, reverse=True)
+        dados = []
+        for preco in precos:
+            dados.append([preco.produto.nome, preco.produto.descricao, preco.produto.categoria.nome, preco.valor, preco.contador, self.formata_data(preco.produto.data_criacao)])
+        return dados
     
     def ordena_por_menos_confirmacoes(self, produtos):
         precos = []
         for p in produtos:
             for preco in p.precos:
                 precos.append(preco)
-        precos_ordenador = precos.sort(key=lambda preco: preco.contador)
+        precos.sort(key=lambda preco: preco.contador)
+        dados = []
+        for preco in precos:
+            dados.append([preco.produto.nome, preco.produto.descricao, preco.produto.categoria.nome, preco.valor, preco.contador, self.formata_data(preco.produto.data_criacao)])
+        return dados
+    
+    def ordena_por_mais_caro(self, produtos):
+        precos = []
+        for p in produtos:
+            for preco in p.precos:
+                precos.append(preco)
+        precos.sort(key=lambda preco: preco.valor, reverse=True)
+        dados = []
+        for preco in precos:
+            import pdb;pdb.set_trace()
+            dados.append([preco.produto.nome, preco.produto.descricao, preco.produto.categoria.nome, preco.valor, preco.contador, self.formata_data(preco.produto.data_criacao)])
+        return dados
+    
+    def ordena_por_mais_barato(self, produtos):
+        precos = []
+        for p in produtos:
+            for preco in p.precos:
+                precos.append(preco)
+        precos.sort(key=lambda preco: preco.valor)
+        dados = []
+        for preco in precos:
+            dados.append([preco.produto.nome, preco.produto.descricao, preco.produto.categoria.nome, preco.valor, preco.contador, self.formata_data(preco.produto.data_criacao)])
+        return dados
+    
+    def formata_data(self, data):
+        return data.strftime("%d/%m/%Y - %H:%M")
 
-    def ordena_produtos(self, produtos: dict, modo_ordenacao, atributo_ordenacao):
+    def ordena_produtos(self, produtos: dict, modo_ordenacao):
         modos = {
             "mais_antigo": self.ordena_produto_por_mais_antigo,
-            "mais_recente": self.ordena_produto_por_preco,
+            "mais_recente": self.ordena_produto_por_mais_recente,
             "mais_confirmacoes": self.ordena_por_mais_confirmacoes,
             "menos_confirmacoes": self.ordena_por_menos_confirmacoes,
-            "mais_caro": self.ordena_por_mais_caro,
-            "mais_barato": self.ordena_por_mais_barato
+            "maior_preco": self.ordena_por_mais_caro,
+            "menor_preco": self.ordena_por_mais_barato
         }
-        metodo = modos[atributo_ordenacao]
-        metodo(produtos, modo_ordenacao)
+        metodo = modos[modo_ordenacao]
+        dados = metodo(produtos)
+        return dados
+    
 
     def verifica_qualificadores_iguais(self, produto, qualificadores):
         for q_pruduto in produto.qualificadores:
@@ -315,7 +360,6 @@ class ControladorProduto:
         return produtos
     
     def verifica_preco_duplicado(self, produto, preco):
-        import pdb;pdb.set_trace()
         for preco_produto in produto.precos:
             if preco_produto.valor == preco:
                 return preco_produto
@@ -339,13 +383,13 @@ class ControladorProduto:
             return
         precos = [p.valor for p in produto.precos]
         valor_preco = self.tela_produto.pega_valor_preco(precos)
-        import pdb;pdb.set_trace()
         if not valor_preco:
             return
         preco = self.verifica_preco_duplicado(produto, valor_preco)
         if preco:
             preco.contador += 1
             self.controlador_sessao.controlador_preco.preco_DAO.update(preco)
+            self.controlador_sessao.controlador_produto.produto_DAO.update(preco.produto)
             self.tela_produto.mostra_mensagem("preco ja existe, contador incrementado!")
             return
         novo_preco = Preco(valor=valor_preco, produto=produto)
@@ -386,17 +430,21 @@ class ControladorProduto:
         self.tela_produto.mostra_mensagem("Produto Editado com Sucesso!")
 
     def busca_produto(self):
+        
         categorias = [c.nome for c in self.controlador_sessao.controlador_categoria.categorias]
         dados_busca = self.tela_produto.menu_busca(categorias)
-        produtos_filtrados = self.filtra_produtos(dados_busca["nome"], dados_busca["categoria"])
-        produtos = self.ordena_produtos(
-            produtos, dados_busca["modo"]
+        if not dados_busca:
+            return
+        produtos_filtrados = self.filtra_produtos(dados_busca["nome_produto"], dados_busca["categoria"])
+        if not produtos_filtrados:
+            self.tela_produto.mostra_mensagem("Nenhum Produto Encontrado")
+            return
+        dados = self.ordena_produtos(
+            produtos_filtrados, dados_busca["modo"]
         )
-        for produto in produtos:
-            self.tela_produto.mostra_dado_produto(self.monta_dados_produto(produto))
-
+        self.tela_produto.mostra_dados_produtos(dados, additional_header="DATA PUBLICACAO")
+            
     def adiciona_qualificador_produto(self):
-        import pdb;pdb.set_trace()
         user = self.controlador_sessao.usuario_atual
         if hasattr(user, "cpf"):
             produtos = self.verifica_permitidos_pf()
@@ -529,9 +577,6 @@ class ControladorProduto:
             opcao = self.tela_produto.menu_produtos()
             if opcao == "voltar":
                 break
-            elif opcao == 10:
-                self.abre_menu_busca()
-
             elif opcao == 1:
                 opcoes[opcao](self.produtos, montar_dados=True)
             else:

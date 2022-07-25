@@ -271,25 +271,26 @@ class TelaProduto(TelaAbstrata):
                 [sg.Radio(text=nome, key=nome, group_id="categorias", default=True if nome == "carne" else False) for nome in categorias],
                 [sg.Text("Selecione um dos filtros de busca abaixo:")],
                 [sg.Radio("Maior Preco", key="maior_preco", group_id="filtros", default=True), sg.Radio("Menor Preco", key="menor_preco", group_id="filtros")],
-                [sg.Radio("Mais confirmacoes", key="mais_confirmacoes", group_id="filtros"), sg.Radio("Menos confirmacoes", key="menor_confirmacoes", group_id="filtros")],
+                [sg.Radio("Mais confirmacoes", key="mais_confirmacoes", group_id="filtros"), sg.Radio("Menos confirmacoes", key="menos_confirmacoes", group_id="filtros")],
                 [sg.Radio("Mais antigo", key="mais_antigo", group_id="filtros"), sg.Radio("Mais recente", key="mais_recente", group_id="filtros")],
-                [sg.Button("Buscar"), sg.Button("Voltar")]
+                [sg.Button("Buscar", key="buscar"), sg.Button("Voltar")]
             ]
         while True:
             dados_busca = {}
-            filtros = {}
             self.__window = sg.Window("Menu Busca", l)
             event, values = self.__window.read()
             if event == "buscar":
                 dados_busca["nome_produto"] = values["nome_produto"]
-                dados_busca["categoria"] = values["categoria"]
                 for k, v in values.items():
                     if v == True:
-                        dados_busca["modo"] = k
-                        break
+                        if k in categorias:
+                            dados_busca["categoria"] = k
+                        else:
+                            dados_busca["modo"] = k
                 self.__window.close()
                 return dados_busca
             else:
+                self.__window.close()
                 return
 
     def cadastra_qualificador(self):
@@ -339,8 +340,10 @@ class TelaProduto(TelaAbstrata):
         id_produto = self.pega_id_produto()
         return id_produto
 
-    def mostra_dados_produtos(self, dados):
+    def mostra_dados_produtos(self, dados, additional_header=False):
         h = ["NOME", "DESCRICAO", "CATEGORIA", "PRECO", "CONTADOR"]
+        if additional_header:
+            h.append(additional_header)
         l = [
             [sg.Table(values=dados, headings=h, auto_size_columns=True)],
             [sg.Button("Voltar", key="voltar")]
